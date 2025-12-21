@@ -1,0 +1,144 @@
+import {
+  createRootRoute,
+  createRoute,
+  Outlet,
+  Navigate,
+} from "@tanstack/react-router";
+import { ToastProvider } from "@/shared/ui/Toast";
+import Login from "@/features/auth/Login";
+import { Overview } from "@/features/overview";
+import StudentsPage from "@/features/students/pages/StudentsPage";
+import { Reports } from "@/features/reports";
+import { Broadcast } from "@/features/broadcast";
+import { Settings } from "@/features/settings";
+import { DailyUpdates } from "@/features/daily-updates";
+import { TeacherSubmission } from "@/features/teacher-submission";
+import { ProtectedRoute } from "./ProtectedRoute";
+import { Onboarding } from "@/features/onboarding";
+import React from "react";
+import PortalPage from "@/features/portal/pages/PortalPage";
+import { LandingPage } from "@/features/landing";
+import PrivacyPolicy from "@/features/legal/PrivacyPolicy";
+import TermsAndConditions from "@/features/legal/TermsAndConditions";
+
+export const rootRoute = createRootRoute({
+  component: () => (
+    <ToastProvider>
+      <Outlet />
+    </ToastProvider>
+  ),
+});
+
+// Public Routes
+export const landingRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/",
+  component: LandingPage,
+});
+
+export const loginRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/login",
+  component: Login,
+});
+
+export const onboardingRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/onboarding",
+  component: Onboarding,
+});
+
+export const submissionRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/submission/$schoolId",
+  component: TeacherSubmission,
+});
+
+export const aiTutorRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/ai-tutor/$schoolId",
+  // Lazy load to avoid loading web-llm bundle on main pages
+  component: React.lazy(() => import("@/features/ai-tutor")),
+});
+
+export const portalRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/portal/$schoolId",
+  component: PortalPage,
+});
+
+export const privacyPolicyRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/privacy-policy",
+  component: PrivacyPolicy,
+});
+
+export const termsRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/terms-and-conditions",
+  component: TermsAndConditions,
+});
+
+// Protected Dashboard Layout Route
+export const dashboardRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  id: "dashboard",
+  component: ProtectedRoute,
+});
+
+// Protected Child Routes
+export const overviewPage = createRoute({
+  getParentRoute: () => dashboardRoute,
+  path: "/overview",
+  component: Overview,
+});
+
+export const studentsRoute = createRoute({
+  getParentRoute: () => dashboardRoute,
+  path: "/students",
+  component: StudentsPage,
+});
+
+export const dailyUpdatesRoute = createRoute({
+  getParentRoute: () => dashboardRoute,
+  path: "/daily-updates",
+  component: DailyUpdates,
+});
+
+export const reportsRoute = createRoute({
+  getParentRoute: () => dashboardRoute,
+  path: "/reports",
+  component: Reports,
+});
+
+export const broadcastRoute = createRoute({
+  getParentRoute: () => dashboardRoute,
+  path: "/broadcast",
+  component: Broadcast,
+});
+
+export const settingsRoute = createRoute({
+  getParentRoute: () => dashboardRoute,
+  path: "/settings",
+  component: Settings,
+});
+
+// Build Route Tree
+export const routeTree = rootRoute.addChildren([
+  landingRoute,
+  loginRoute,
+  onboardingRoute,
+  submissionRoute,
+  aiTutorRoute,
+  portalRoute,
+  privacyPolicyRoute,
+  termsRoute,
+  dashboardRoute.addChildren([
+    overviewPage,
+    studentsRoute,
+    dailyUpdatesRoute,
+    reportsRoute,
+    broadcastRoute,
+    settingsRoute,
+  ]),
+]);
