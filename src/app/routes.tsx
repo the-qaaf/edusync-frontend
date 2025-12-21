@@ -22,6 +22,7 @@ import PortalPage from "@/features/portal/pages/PortalPage";
 import { LandingPage } from "@/features/landing";
 import PrivacyPolicy from "@/features/legal/PrivacyPolicy";
 import TermsAndConditions from "@/features/legal/TermsAndConditions";
+import { Loader2 } from "lucide-react";
 
 export const rootRoute = createRootRoute({
   component: () => (
@@ -50,7 +51,13 @@ export const landingRoute = createRoute({
       }
     }, [isAuthenticated, isLoading, navigate]);
 
-    if (isAuthenticated) return null;
+    if (isAuthenticated || isLoading) {
+      return (
+        <div className="min-h-screen flex items-center justify-center bg-slate-50">
+          <Loader2 className="animate-spin text-blue-600" size={40} />
+        </div>
+      );
+    }
     return <LandingPage />;
   },
 });

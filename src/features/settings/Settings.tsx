@@ -507,6 +507,70 @@ const Settings: React.FC = () => {
                     </Button>
                   </div>
                 </div>
+
+                <div className="pt-4 border-t border-slate-100">
+                  <label className="text-sm font-medium leading-none text-slate-900 mb-2 block">
+                    AI Personal Tutor Access
+                  </label>
+                  <p className="text-xs text-slate-500 mb-2">
+                    Share this link with students for 24/7 AI-powered academic
+                    assistance.
+                  </p>
+                  <div className="flex gap-2">
+                    <div className="flex-1 bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-600 truncate font-mono">
+                      {schoolId
+                        ? `${window.location.protocol}//${window.location.host}/ai-tutor/${schoolId}`
+                        : "..."}
+                    </div>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        if (schoolId) {
+                          navigator.clipboard.writeText(
+                            `${window.location.protocol}//${window.location.host}/ai-tutor/${schoolId}`
+                          );
+                          toast("Link copied to clipboard", "success");
+                        }
+                      }}
+                      disabled={!schoolId}
+                    >
+                      <Copy size={16} />
+                    </Button>
+                  </div>
+                </div>
+
+                <div className="pt-4 border-t border-slate-100">
+                  <label className="text-sm font-medium leading-none text-slate-900 mb-2 block">
+                    Parent Portal Access
+                  </label>
+                  <p className="text-xs text-slate-500 mb-2">
+                    Public link for parents to view student progress reports and
+                    announcements.
+                  </p>
+                  <div className="flex gap-2">
+                    <div className="flex-1 bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-600 truncate font-mono">
+                      {schoolId
+                        ? `${window.location.protocol}//${window.location.host}/portal/${schoolId}`
+                        : "..."}
+                    </div>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        if (schoolId) {
+                          navigator.clipboard.writeText(
+                            `${window.location.protocol}//${window.location.host}/portal/${schoolId}`
+                          );
+                          toast("Link copied to clipboard", "success");
+                        }
+                      }}
+                      disabled={!schoolId}
+                    >
+                      <Copy size={16} />
+                    </Button>
+                  </div>
+                </div>
               </div>
             </div>
           </Card>
