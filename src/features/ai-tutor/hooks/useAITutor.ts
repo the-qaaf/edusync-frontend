@@ -13,7 +13,7 @@ const generateId = () => Math.random().toString(36).substring(2, 9);
 const DEFAULT_GREETING: ChatMessage = {
   role: "assistant",
   content:
-    "Hi there! I'm your AI Tutor. I can help you with your school work, explain difficult topics, or quiz you. What are we learning today?",
+    "Welcome. I am your AI Tutor, here to support your academic journey. I can assist with understanding complex topics, reviewing homework, or conducting practice quizzes. What subject would you like to focus on today?",
 };
 
 export const useAITutor = (schoolId?: string) => {

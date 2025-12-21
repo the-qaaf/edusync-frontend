@@ -20,12 +20,13 @@ export default defineConfig(({ mode }) => {
       },
     },
     build: {
+      target: "esnext", // Browsers supporting WebGPU also support esnext
       rollupOptions: {
         output: {
           manualChunks(id) {
             if (id.includes("node_modules")) {
               if (id.includes("@mlc-ai")) {
-                return "ai";
+                return "ai"; // Separate chunk for AI to be potentially reused or cached
               }
               if (id.includes("firebase")) {
                 return "firebase";
@@ -48,6 +49,9 @@ export default defineConfig(({ mode }) => {
           },
         },
       },
+    },
+    worker: {
+      format: "es",
     },
   };
 });

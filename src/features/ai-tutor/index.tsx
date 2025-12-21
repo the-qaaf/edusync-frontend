@@ -1,19 +1,14 @@
-import React, { useRef, useEffect, useCallback } from "react";
+import { useRef, useEffect, useCallback } from "react";
 import {
-  Send,
   Sparkles,
   BookOpen,
   HelpCircle,
   GraduationCap,
   Menu,
-  Mic,
-  MicOff,
   Loader2,
   AlertCircle,
-  Image as ImageIcon,
   X,
 } from "lucide-react";
-import { twMerge } from "tailwind-merge";
 import { useParams } from "@tanstack/react-router";
 import { usePageTitle } from "@/shared/hooks/usePageTitle";
 
@@ -266,6 +261,12 @@ export const AITutorPage = () => {
             <p className="text-center text-[10px] text-gray-400 mt-2">
               AI can make mistakes. Check important info.
             </p>
+            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-2 text-[10px] text-yellow-800 text-center mx-auto max-w-md">
+              <span className="font-semibold">Performance Note:</span> For the
+              fastest experience, we recommend using a Laptop or PC. This runs
+              fully on your device, so generation might be slower on older
+              mobile phones.
+            </div>
           </div>
         </footer>
       </div>

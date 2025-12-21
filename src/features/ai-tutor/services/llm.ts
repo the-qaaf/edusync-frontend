@@ -1,11 +1,12 @@
 import {
-  CreateMLCEngine,
-  MLCEngine,
+  CreateWebWorkerMLCEngine,
+  WebWorkerMLCEngine,
   InitProgressCallback,
+  AppConfig,
 } from "@mlc-ai/web-llm";
 
-// Using Llama-3.2-3B-Instruct-q4f16_1-MLC for a balance of speed and quality in browser
-const SELECTED_MODEL = "Llama-3.2-3B-Instruct-q4f16_1-MLC";
+// 1. Using the standard model ID from the built-in registry
+const SELECTED_MODEL_ID = "Llama-3.2-3B-Instruct-q4f16_1-MLC";
 
 export interface ChatMessage {
   role: "user" | "assistant" | "system";
@@ -14,7 +15,7 @@ export interface ChatMessage {
 }
 
 export class LLMService {
-  private engine: MLCEngine | null = null;
+  private engine: WebWorkerMLCEngine | null = null;
   private initializationPromise: Promise<void> | null = null;
 
   async initialize(onProgress: InitProgressCallback): Promise<void> {
@@ -26,9 +27,23 @@ export class LLMService {
 
     this.initializationPromise = (async () => {
       try {
-        this.engine = await CreateMLCEngine(SELECTED_MODEL, {
-          initProgressCallback: onProgress,
+        // Clean up any potentially corrupted cache
+        // await this.deleteOldCache();
+
+        const worker = new Worker(new URL("./worker.ts", import.meta.url), {
+          type: "module",
         });
+
+        // Using the built-in configuration to ensure correct model URLs and WASM versions
+        // This resolves the "Failed to execute 'add' on 'Cache'" error caused by incorrect manual config
+        this.engine = await CreateWebWorkerMLCEngine(
+          worker,
+          SELECTED_MODEL_ID,
+          {
+            initProgressCallback: onProgress,
+            // appConfig is omitted to use the robust default registry
+          }
+        );
       } catch (error) {
         console.error("Failed to initialize LLM engine:", error);
         throw error;
@@ -39,6 +54,24 @@ export class LLMService {
 
     return this.initializationPromise;
   }
+
+  // Helper to cleanup previous model versions from browser cache
+  // private async deleteOldCache(): Promise<void> {
+  //   try {
+  //     if ("caches" in window) {
+  //       const keys = await caches.keys();
+  //       const oldModelId = "Llama-3.2-3B-Instruct-q4f16_1-MLC"; // Previous ID
+  //       for (const key of keys) {
+  //         if (key.includes(oldModelId)) {
+  //           await caches.delete(key);
+  //           console.log(`[LLMService] Deleted old cache: ${key}`);
+  //         }
+  //       }
+  //     }
+  //   } catch (error) {
+  //     console.warn("[LLMService] Failed to clean up old cache:", error);
+  //   }
+  // }
 
   async generateResponse(
     messages: ChatMessage[],
@@ -51,8 +84,8 @@ export class LLMService {
     const chunks = await this.engine.chat.completions.create({
       messages,
       stream: true,
-      max_tokens: 2048, // Increased for longer, more detailed educational responses
-      temperature: 0.7,
+      max_tokens: 1024, // Reduced to 1024 for better mobile performance and battery life
+      temperature: 0.3, // Lowered to 0.3 for more accurate, less hallucinatory responses
     });
 
     let finalMessage = "";
