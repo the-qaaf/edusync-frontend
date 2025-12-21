@@ -19,13 +19,13 @@ export const ProtectedRoute: React.FC = () => {
   }
 
   if (!isAuthenticated) {
-    return <Navigate to="/login" />;
+    return <Navigate to="/login" replace />;
   }
 
   // If authenticated but no schoolId, it means onboarding isn't complete (or failed)
   // Redirect to onboarding to force setup.
   if (!schoolId) {
-    return <Navigate to="/onboarding" />;
+    return <Navigate to="/onboarding" replace />;
   }
 
   return <Layout />;

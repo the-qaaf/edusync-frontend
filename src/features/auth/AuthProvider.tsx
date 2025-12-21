@@ -86,6 +86,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     if (!isFirebaseConfigured() || !auth) {
       // Fallback mock login for demo when no config exists
       if (email.includes("@")) {
+        setIsLoading(true);
         // Fake user object
         setUser({
           email,
@@ -107,12 +108,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
           providerId: "firebase",
         } as unknown as User);
         setSchoolId("demo-school-id");
+        // Short timeout to simulate async to match behavior
+        setTimeout(() => setIsLoading(false), 500);
         return;
       } else {
         throw new Error("Invalid mock credentials");
       }
     }
-    await signInWithEmailAndPassword(auth, email, password);
+    try {
+      setIsLoading(true);
+      await signInWithEmailAndPassword(auth, email, password);
+    } catch (error) {
+      setIsLoading(false);
+      throw error;
+    }
   };
 
   const signup = async (

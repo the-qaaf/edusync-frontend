@@ -1,5 +1,6 @@
 import React from "react";
 import { X } from "lucide-react";
+import { createPortal } from "react-dom";
 
 interface ModalProps {
   isOpen: boolean;
@@ -9,6 +10,7 @@ interface ModalProps {
   children: React.ReactNode;
   footer?: React.ReactNode;
 }
+
 export const Modal: React.FC<ModalProps> = ({
   isOpen,
   onClose,
@@ -18,8 +20,9 @@ export const Modal: React.FC<ModalProps> = ({
   footer,
 }) => {
   if (!isOpen) return null;
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+
+  return createPortal(
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/70 backdrop-blur-sm p-4 animate-in fade-in duration-200">
       <div className="relative w-full max-w-lg border border-slate-200 bg-white p-6 shadow-xl duration-200 sm:rounded-lg animate-in zoom-in-95">
         <button
           onClick={onClose}
@@ -43,6 +46,7 @@ export const Modal: React.FC<ModalProps> = ({
           </div>
         )}
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };

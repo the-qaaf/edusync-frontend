@@ -557,12 +557,17 @@ const Onboarding: React.FC = () => {
     </div>
   );
 
-  return (
-    <div className="min-h-screen flex w-full font-sans bg-white overflow-hidden">
-      {renderLeftPanel()}
-      {renderRightPanel()}
-    </div>
-  );
+  // Main content
+  if (!isLoading && (!isAuthenticated || !schoolId)) {
+    return (
+      <div className="min-h-screen flex w-full font-sans bg-white overflow-hidden">
+        {renderLeftPanel()}
+        {renderRightPanel()}
+      </div>
+    );
+  }
+
+  return null;
 };
 
 export default Onboarding;
