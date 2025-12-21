@@ -209,7 +209,7 @@ const Onboarding: React.FC = () => {
       await refreshUser();
       setTenantId(tenantId); // Immediate access even if index lags
 
-      toast("Setup complete! Welcome to QAAF Connect.", "success");
+      toast("Setup complete! Welcome to EduSync.", "success");
       navigate({ to: "/" });
     } catch (e: any) {
       console.error(e);
@@ -489,7 +489,7 @@ const Onboarding: React.FC = () => {
 
         {/* Footer */}
         <div className="mt-8 text-xs text-slate-400">
-          &copy; {new Date().getFullYear()} QAAF Connect. Secure & Compliant.
+          &copy; {new Date().getFullYear()} EduSync. Secure & Compliant.
         </div>
       </div>
     </div>

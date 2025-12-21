@@ -130,10 +130,10 @@ const TermsAndConditions = () => {
 
               <h3>6. Limitation of Liability</h3>
               <p>
-                To the maximum extent permitted by law, QAAF Connect shall not
-                be liable for any indirect, incidental, special, consequential,
-                or punitive damages arising out of your use or inability to use
-                the Service.
+                To the maximum extent permitted by law, EduSync shall not be
+                liable for any indirect, incidental, special, consequential, or
+                punitive damages arising out of your use or inability to use the
+                Service.
               </p>
 
               <h3>7. Termination</h3>

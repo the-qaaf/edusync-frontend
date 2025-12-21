@@ -7,12 +7,12 @@ import { getStorage, FirebaseStorage } from "firebase/storage";
 // Firebase Configuration
 // ------------------------------------------------------------------
 const firebaseConfig = {
-  apiKey: "AIzaSyCCOeRnQ94-GbPuNAQ00d-cg2OAAhJoHhA",
-  authDomain: "school-ai-7eaa3.firebaseapp.com",
-  projectId: "school-ai-7eaa3",
-  storageBucket: "school-ai-7eaa3.firebasestorage.app",
-  messagingSenderId: "42291399040",
-  appId: "1:42291399040:web:6239d648f0e75adb755965",
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID,
 };
 
 // Helper to check if config is valid (for UI feedback)

@@ -332,7 +332,7 @@ const Reports: React.FC = () => {
 
       <div className="text-center border-t border-slate-100 pt-6">
         <p className="text-[10px] text-slate-400 uppercase tracking-widest">
-          Generated via QAAF Connect • {new Date().getFullYear()}
+          Generated via EduSync • {new Date().getFullYear()}
         </p>
       </div>
     </div>

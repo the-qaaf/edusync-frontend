@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { Link } from "@tanstack/react-router";
 import {
   Sparkles,
@@ -12,11 +12,17 @@ import {
   Star,
   Quote,
   Menu,
+  X,
+  Loader2,
 } from "lucide-react";
 
 export const LandingPage = () => {
+  const [isDemoOpen, setIsDemoOpen] = useState(false);
+
   return (
     <div className="min-h-screen bg-slate-50 font-sans text-slate-900 selection:bg-blue-100 selection:text-blue-900 overflow-x-hidden">
+      <DemoModal isOpen={isDemoOpen} onClose={() => setIsDemoOpen(false)} />
+
       {/* Background Gradients */}
       <div className="fixed inset-0 z-0 pointer-events-none">
         <div className="absolute top-[-10%] right-[-5%] w-[500px] h-[500px] bg-blue-400/20 rounded-full blur-[100px] animate-pulse-slow" />
@@ -38,7 +44,7 @@ export const LandingPage = () => {
               EduSync
             </Link>
             <span className="text-[10px] font-semibold tracking-widest text-slate-500 uppercase mt-1 ml-10">
-              by The Qaaf Organization
+              by The Qaaf Development
             </span>
           </div>
 
@@ -61,25 +67,25 @@ export const LandingPage = () => {
             >
               Reviews
             </a>
-            {/* <a
-              href="#pricing"
-              className="hover:text-blue-600 transition-colors"
+            <button
+              onClick={() => setIsDemoOpen(true)}
+              className="px-5 py-2 rounded-full bg-blue-600 text-white font-medium text-sm hover:bg-blue-700 hover:shadow-lg transition-all"
             >
-              Pricing
-            </a> */}
+              Book a Demo
+            </button>
           </div>
 
-          {/* <div className="flex items-center gap-4">
-            <Link
-              to="/login"
-              className="hidden md:inline-flex px-6 py-2.5 rounded-full bg-slate-900 text-white font-medium text-sm hover:bg-slate-800 hover:scale-105 active:scale-95 transition-all shadow-lg hover:shadow-xl"
+          <div className="md:hidden flex items-center">
+            <button
+              onClick={() => setIsDemoOpen(true)}
+              className="text-sm font-medium text-blue-600 mr-4"
             >
-              Teacher Login
-            </Link>
-            <button className="md:hidden p-2 text-slate-600">
+              Book Demo
+            </button>
+            <button className="p-2 text-slate-600">
               <Menu size={24} />
             </button>
-          </div> */}
+          </div>
         </div>
       </nav>
 
@@ -104,21 +110,24 @@ export const LandingPage = () => {
             at scale.
           </p>
 
-          {/* <div className="flex flex-col sm:flex-row gap-4 animate-in fade-in slide-in-from-bottom-8 duration-700 delay-300">
-            <Link
-              to="/login"
+          <div className="flex flex-col sm:flex-row gap-4 animate-in fade-in slide-in-from-bottom-8 duration-700 delay-300">
+            <button
+              onClick={() => setIsDemoOpen(true)}
               className="px-8 py-4 rounded-xl bg-blue-600 text-white font-bold text-lg hover:bg-blue-700 hover:shadow-lg hover:shadow-blue-500/25 transition-all flex items-center justify-center gap-2 group"
             >
-              Get Started
+              Book a Demo
               <ArrowRight
                 size={20}
                 className="group-hover:translate-x-1 transition-transform"
               />
-            </Link>
-            <button className="px-8 py-4 rounded-xl bg-white text-slate-700 font-bold text-lg border border-slate-200 hover:bg-slate-50 hover:border-slate-300 transition-all shadow-sm">
-              Watch Demo
             </button>
-          </div> */}
+            <a
+              href="#features"
+              className="px-8 py-4 rounded-xl bg-white text-slate-700 font-bold text-lg border border-slate-200 hover:bg-slate-50 hover:border-slate-300 transition-all shadow-sm block"
+            >
+              Learn More
+            </a>
+          </div>
         </div>
       </section>
 
@@ -287,10 +296,10 @@ export const LandingPage = () => {
             </span>
             <p className="text-slate-500 mt-4 leading-relaxed">
               Making education accessible, intelligent, and engaging for
-              everyone. Proudly built by The Qaaf Organization.
+              everyone. Proudly built by The Qaaf Development.
             </p>
             <span className="text-sm text-slate-400 mt-6">
-              © 2024 The Qaaf Organization
+              © 2024 The Qaaf Development
             </span>
           </div>
 
@@ -340,6 +349,167 @@ export const LandingPage = () => {
           </div>
         </div>
       </footer>
+    </div>
+  );
+};
+
+// --- MODAL ---
+const DemoModal = ({
+  isOpen,
+  onClose,
+}: {
+  isOpen: boolean;
+  onClose: () => void;
+}) => {
+  const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState(false);
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    info: "",
+  });
+
+  if (!isOpen) return null;
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+
+    const emailRecipients = [
+      "inamul2002@gmail.com",
+      "thanseerulhaque@gmail.com",
+    ];
+    const message = `Name: ${formData.name}\nEmail: ${formData.email}\nInfo: ${formData.info}`;
+
+    try {
+      await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/send-email`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          to: emailRecipients,
+          subject: `New Demo Booking Request from ${formData.name}`,
+          text: message,
+          html: `<div style="font-family: sans-serif;">
+              <h2>New Demo Booking Request</h2>
+              <p><strong>Name:</strong> ${formData.name}</p>
+              <p><strong>Email:</strong> ${formData.email}</p>
+              <p><strong>Info:</strong></p>
+              <p>${formData.info.replace(/\n/g, "<br>")}</p>
+              <br/>
+              <p style="color: #666; font-size: 12px;">Sent via EduSync Landing Page.</p>
+            </div>`,
+        }),
+      });
+      setSuccess(true);
+      setTimeout(() => {
+        setSuccess(false);
+        onClose();
+        setFormData({ name: "", email: "", info: "" });
+      }, 3000);
+    } catch (error) {
+      console.error("Failed to send email", error);
+      alert("Something went wrong. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
+      <div className="bg-white rounded-2xl w-full max-w-md p-6 shadow-2xl relative animate-in zoom-in-95 duration-200">
+        <button
+          onClick={onClose}
+          className="absolute top-4 right-4 text-slate-400 hover:text-slate-600"
+        >
+          <X size={20} />
+        </button>
+
+        {success ? (
+          <div className="py-12 text-center">
+            <div className="w-16 h-16 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-4">
+              <CheckCircle2 size={32} />
+            </div>
+            <h3 className="text-2xl font-bold text-slate-900 mb-2">
+              Request Sent!
+            </h3>
+            <p className="text-slate-500">
+              We'll be in touch shortly to schedule your demo.
+            </p>
+          </div>
+        ) : (
+          <>
+            <h2 className="text-2xl font-bold text-slate-900 mb-2">
+              Book a Demo
+            </h2>
+            <p className="text-slate-500 mb-6 font-sm">
+              Fill in your details and we'll get back to you.
+            </p>
+
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">
+                  Name
+                </label>
+                <input
+                  required
+                  type="text"
+                  className="w-full px-4 py-2 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
+                  placeholder="Your Name"
+                  value={formData.name}
+                  onChange={(e) =>
+                    setFormData({ ...formData, name: e.target.value })
+                  }
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">
+                  Email
+                </label>
+                <input
+                  required
+                  type="email"
+                  className="w-full px-4 py-2 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
+                  placeholder="you@school.com"
+                  value={formData.email}
+                  onChange={(e) =>
+                    setFormData({ ...formData, email: e.target.value })
+                  }
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">
+                  Additional Info
+                </label>
+                <textarea
+                  className="w-full px-4 py-2 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all min-h-[100px]"
+                  placeholder="Tell us about your school or specific needs..."
+                  value={formData.info}
+                  onChange={(e) =>
+                    setFormData({ ...formData, info: e.target.value })
+                  }
+                />
+              </div>
+
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full py-3 px-4 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl transition-all shadow-lg shadow-blue-500/30 disabled:opacity-70 flex items-center justify-center gap-2"
+              >
+                {loading ? (
+                  <>
+                    <Loader2 size={18} className="animate-spin" />
+                    Sending...
+                  </>
+                ) : (
+                  "Submit Request"
+                )}
+              </button>
+            </form>
+          </>
+        )}
+      </div>
     </div>
   );
 };
