@@ -19,5 +19,35 @@ export default defineConfig(({ mode }) => {
         "@": path.resolve(__dirname, "./src"),
       },
     },
+    build: {
+      rollupOptions: {
+        output: {
+          manualChunks(id) {
+            if (id.includes("node_modules")) {
+              if (id.includes("@mlc-ai")) {
+                return "ai";
+              }
+              if (id.includes("firebase")) {
+                return "firebase";
+              }
+              if (
+                id.includes("react-quill") ||
+                id.includes("katex") ||
+                id.includes("markdown")
+              ) {
+                return "editor";
+              }
+              if (
+                id.includes("lucide") ||
+                id.includes("clsx") ||
+                id.includes("tailwind")
+              ) {
+                return "ui";
+              }
+            }
+          },
+        },
+      },
+    },
   };
 });

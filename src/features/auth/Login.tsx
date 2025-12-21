@@ -127,12 +127,6 @@ const Login: React.FC = () => {
                 label="Remember for 30 days"
                 className="text-sm text-slate-600"
               />
-              <button
-                type="button"
-                className="text-sm font-medium text-sky-600 hover:text-sky-700"
-              >
-                Forgot password?
-              </button>
             </div>
 
             <Button
