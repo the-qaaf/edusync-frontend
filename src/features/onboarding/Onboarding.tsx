@@ -37,9 +37,15 @@ const STEPS = [
 ];
 
 const Onboarding: React.FC = () => {
-  const { signup, user, isAuthenticated, refreshUser, setTenantId, schoolId } =
-    useAuth();
-  console.log("🚀 ~ Onboarding ~ schoolId:", schoolId);
+  const {
+    signup,
+    user,
+    isAuthenticated,
+    refreshUser,
+    setTenantId,
+    schoolId,
+    isLoading,
+  } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -65,10 +71,19 @@ const Onboarding: React.FC = () => {
   // Redirect if already authenticated AND has schoolId (onboarding complete)
   // If authenticated but no schoolId, allow them to complete onboarding.
   useEffect(() => {
-    if (isAuthenticated && schoolId) {
+    if (!isLoading && isAuthenticated && schoolId) {
       navigate({ to: "/" });
     }
-  }, [isAuthenticated, schoolId, navigate]);
+  }, [isAuthenticated, schoolId, navigate, isLoading]);
+
+  // Prevent flash of onboarding screen while checking auth status
+  if (isLoading || (isAuthenticated && schoolId)) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-slate-50">
+        <Loader2 className="animate-spin text-blue-600" size={40} />
+      </div>
+    );
+  }
 
   // Handlers
   const handleChange = (field: keyof OnboardingData, value: any) => {
