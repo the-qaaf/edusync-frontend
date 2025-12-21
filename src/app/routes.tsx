@@ -3,9 +3,11 @@ import {
   createRoute,
   Outlet,
   Navigate,
+  useNavigate,
 } from "@tanstack/react-router";
 import { ToastProvider } from "@/shared/ui/Toast";
 import Login from "@/features/auth/Login";
+import { useAuth } from "@/features/auth/AuthContext";
 import { Overview } from "@/features/overview";
 import StudentsPage from "@/features/students/pages/StudentsPage";
 import { Reports } from "@/features/reports";
@@ -33,7 +35,24 @@ export const rootRoute = createRootRoute({
 export const landingRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/",
-  component: LandingPage,
+  loader: async ({ context }: { context: any }) => {
+    const token = localStorage.getItem("firebaseToken");
+    if (token) {
+    }
+  },
+  component: () => {
+    const { isAuthenticated, isLoading } = useAuth();
+    const navigate = useNavigate();
+
+    React.useEffect(() => {
+      if (!isLoading && isAuthenticated) {
+        navigate({ to: "/overview" });
+      }
+    }, [isAuthenticated, isLoading, navigate]);
+
+    if (isAuthenticated) return null;
+    return <LandingPage />;
+  },
 });
 
 export const loginRoute = createRoute({
