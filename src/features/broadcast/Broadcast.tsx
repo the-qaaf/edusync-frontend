@@ -136,7 +136,6 @@ const Broadcast: React.FC = () => {
     }
   }, [selectedTemplate, settings?.schoolName]);
 
-  // ... inside handleSend ...
   const handleSend = async () => {
     if (!schoolId) return;
     if (!sendEmail && !sendWhatsapp) {
@@ -167,16 +166,16 @@ const Broadcast: React.FC = () => {
           .map((c) => c.email);
 
         if (emailRecipients.length > 0) {
-          // Integrate with Node.js/Express Server
+          // Use BATCH email endpoint for reliability
           const response = await fetch(
-            `${import.meta.env.VITE_BACKEND_URL}/api/send-email`,
+            `${import.meta.env.VITE_BACKEND_URL}/api/send-batch-email`,
             {
               method: "POST",
               headers: {
                 "Content-Type": "application/json",
               },
               body: JSON.stringify({
-                to: emailRecipients,
+                to: emailRecipients, // Array of emails
                 subject: `Important Announcement from ${
                   settings?.schoolName || "SchoolConnect"
                 }`,
@@ -244,15 +243,17 @@ const Broadcast: React.FC = () => {
                 break;
             }
 
+            // Use BATCH WhatsApp endpoint
             const response = await fetch(
-              `${import.meta.env.VITE_BACKEND_URL}/api/whatsapp/notify`,
+              `${import.meta.env.VITE_BACKEND_URL}/api/whatsapp/batch-notify`,
               {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
-                  to: waRecipients,
+                  to: waRecipients, // Full contact objects including phone
                   type: waType,
                   data: waData,
+                  text: message, // fallback text
                 }),
               }
             );
@@ -262,12 +263,7 @@ const Broadcast: React.FC = () => {
               console.error("WhatsApp Failed", err);
             } else {
               const result = await response.json();
-              if (result.method === "text_fallback") {
-                toast(
-                  "Template unavailable, sent as text message instead.",
-                  "info"
-                );
-              }
+              // Logic check
               channels.push("WhatsApp");
             }
           } catch (e) {
@@ -303,7 +299,6 @@ const Broadcast: React.FC = () => {
         "success"
       );
       setMessage("");
-      // No need to manually fetchLogs, invalidation handles it
     } catch (error) {
       console.error("Broadcast error:", error);
       toast("Failed to send broadcast. Please try again.", "error");
