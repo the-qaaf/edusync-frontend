@@ -154,13 +154,13 @@ const PortalPage: React.FC = () => {
                   </p>
                 </div>
                 <div className="flex gap-2 text-xs font-semibold text-slate-600 bg-slate-50/80 p-2 rounded-2xl backdrop-blur-sm md:bg-transparent md:p-0">
-                  <div className="px-3 py-2 bg-white md:bg-slate-50 rounded-xl border border-slate-100 shadow-sm flex-1 text-center min-w-[80px]">
+                  <div className="px-3 py-2 bg-white md:bg-slate-50 rounded-xl border border-slate-100 shadow-sm flex-1 text-center min-w-[90px]">
                     <span className="block text-slate-400 text-[10px] uppercase tracking-wider mb-0.5">
                       Class
                     </span>
                     {selectedStudent.class}-{selectedStudent.section}
                   </div>
-                  <div className="px-3 py-2 bg-white md:bg-slate-50 rounded-xl border border-slate-100 shadow-sm flex-1 text-center min-w-[80px]">
+                  <div className="px-3 py-2 bg-white md:bg-slate-50 rounded-xl border border-slate-100 shadow-sm flex-1 text-center min-w-[90px]">
                     <span className="block text-slate-400 text-[10px] uppercase tracking-wider mb-0.5">
                       Roll No
                     </span>
@@ -289,10 +289,8 @@ const PortalPage: React.FC = () => {
                       </div>
 
                       {update.notes && (
-                        <div className="mt-3 flex gap-2 items-start bg-yellow-50/50 p-2.5 rounded-lg">
-                          <span className="text-yellow-500 shrink-0 mt-0.5">
-                            ℹ️
-                          </span>
+                        <div className="mt-3 flex gap-2 items-center justify-start bg-yellow-50/50 p-2.5 rounded-lg">
+                          <span className="text-yellow-500 shrink-0">ℹ️</span>
                           <div className="text-xs text-slate-600 font-medium leading-relaxed prose prose-sm max-w-none prose-p:my-0 prose-ul:my-0 prose-li:my-0 break-words">
                             <ReactMarkdown rehypePlugins={[rehypeRaw]}>
                               {update.notes}

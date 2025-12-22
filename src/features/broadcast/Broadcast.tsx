@@ -250,7 +250,7 @@ const Broadcast: React.FC = () => {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
-                  to: "917904480240",
+                  to: waRecipients,
                   type: waType,
                   data: waData,
                 }),

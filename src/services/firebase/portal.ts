@@ -54,12 +54,14 @@ export const getStudentUpdates = async (
   section: string,
   date: string // ISO string YYYY-MM-DD
 ): Promise<DailyUpdate[]> => {
+  console.log("🚀 ~ getStudentUpdates ~ section:", section);
+  console.log("🚀 ~ getStudentUpdates ~ classGrade:", classGrade);
   if (!db) return [];
   try {
     // Query "daily_updates" for this school, filtered by class/section/date
     const q = query(
       collection(db, "tenants", schoolId, "daily_updates"),
-      where("classGrade", "==", `Class ${classGrade}`),
+      where("classGrade", "==", `${classGrade}`),
       where("section", "==", section),
       orderBy("date", "desc"),
       limit(10)
