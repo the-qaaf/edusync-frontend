@@ -52,7 +52,7 @@ const Layout: React.FC = () => {
       label: "Daily Updates",
       icon: <BookOpenCheck size={20} />,
     },
-    { to: "/reports", label: "Reports", icon: <FileText size={20} /> },
+    // { to: "/reports", label: "Reports", icon: <FileText size={20} /> },
     { to: "/broadcast", label: "Broadcast", icon: <Radio size={20} /> },
     // { to: "/settings", label: "Settings", icon: <Settings size={20} /> },
   ];

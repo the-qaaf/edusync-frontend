@@ -574,16 +574,6 @@ const Settings: React.FC = () => {
                 }
                 icon={Bot}
               />
-              <LinkItem
-                title="Parent Portal"
-                description="Progress reports and analytics."
-                url={
-                  schoolId
-                    ? `${window.location.protocol}//${window.location.host}/portal/${schoolId}`
-                    : "..."
-                }
-                icon={Users}
-              />
             </div>
           </div>
         )}

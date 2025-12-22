@@ -18,7 +18,7 @@ import { TeacherSubmission } from "@/features/teacher-submission";
 import { ProtectedRoute } from "./ProtectedRoute";
 import { Onboarding } from "@/features/onboarding";
 import React from "react";
-import PortalPage from "@/features/portal/pages/PortalPage";
+
 import { LandingPage } from "@/features/landing";
 import PrivacyPolicy from "@/features/legal/PrivacyPolicy";
 import TermsAndConditions from "@/features/legal/TermsAndConditions";
@@ -87,12 +87,6 @@ export const aiTutorRoute = createRoute({
   component: React.lazy(() => import("@/features/ai-tutor")),
 });
 
-export const portalRoute = createRoute({
-  getParentRoute: () => rootRoute,
-  path: "/portal/$schoolId",
-  component: PortalPage,
-});
-
 export const privacyPolicyRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/privacy-policy",
@@ -131,11 +125,11 @@ export const dailyUpdatesRoute = createRoute({
   component: DailyUpdates,
 });
 
-export const reportsRoute = createRoute({
-  getParentRoute: () => dashboardRoute,
-  path: "/reports",
-  component: Reports,
-});
+// export const reportsRoute = createRoute({
+//   getParentRoute: () => dashboardRoute,
+//   path: "/reports",
+//   component: Reports,
+// });
 
 export const broadcastRoute = createRoute({
   getParentRoute: () => dashboardRoute,
@@ -156,14 +150,14 @@ export const routeTree = rootRoute.addChildren([
   onboardingRoute,
   submissionRoute,
   aiTutorRoute,
-  portalRoute,
+
   privacyPolicyRoute,
   termsRoute,
   dashboardRoute.addChildren([
     overviewPage,
     studentsRoute,
     dailyUpdatesRoute,
-    reportsRoute,
+    // reportsRoute,
     broadcastRoute,
     settingsRoute,
   ]),
