@@ -1,17 +1,10 @@
-import { db } from "./config";
-import {
-  collection,
-  addDoc,
-  query,
-  orderBy,
-  limit,
-  getDocs,
-  serverTimestamp,
-} from "firebase/firestore";
 import { DailyUpdate } from "@/types";
 
+const getBackendUrl = () =>
+  import.meta.env.VITE_BACKEND_URL || "http://localhost:8000/api";
+
 /**
- * Adds a new daily update (homework/classwork log).
+ * Adds a new daily update (homework/classwork log) via Backend.
  * @param schoolId The school ID
  * @param update The update object
  * @returns Dictionary ID of the created update
@@ -20,17 +13,19 @@ export const addDailyUpdate = async (
   schoolId: string,
   update: Omit<DailyUpdate, "id">
 ): Promise<string> => {
-  if (!db) throw new Error("Database not connected");
   try {
-    const payload = {
-      ...update,
-      createdAt: serverTimestamp(),
-    };
-    const docRef = await addDoc(
-      collection(db, "tenants", schoolId, "daily_updates"),
-      payload
+    const response = await fetch(
+      `${getBackendUrl()}/daily-updates?schoolId=${schoolId}`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(update),
+      }
     );
-    return docRef.id;
+
+    if (!response.ok) throw new Error("Failed to add update");
+    const data = await response.json();
+    return data.id;
   } catch (e) {
     console.error("Error adding daily update: ", e);
     throw e;
@@ -38,7 +33,7 @@ export const addDailyUpdate = async (
 };
 
 /**
- * Fetches recent daily updates.
+ * Fetches recent daily updates from Backend.
  * @param schoolId The school ID
  * @param limitCount Maximum number of updates to fetch
  * @returns Array of DailyUpdate objects
@@ -47,31 +42,17 @@ export const getDailyUpdates = async (
   schoolId: string,
   limitCount: number = 20
 ): Promise<DailyUpdate[]> => {
-  if (!db) return [];
   try {
-    const q = query(
-      collection(db, "tenants", schoolId, "daily_updates"),
-      orderBy("date", "desc"),
-      limit(limitCount)
+    const response = await fetch(
+      `${getBackendUrl()}/daily-updates?schoolId=${schoolId}&limit=${limitCount}`
     );
-    const querySnapshot = await getDocs(q);
-    return querySnapshot.docs.map(
-      (doc) => ({ id: doc.id, ...doc.data() } as DailyUpdate)
-    );
-  } catch (e: any) {
-    console.warn("Index missing for sort, fetching unsorted fallback.", e);
-    try {
-      const qFallback = query(
-        collection(db, "tenants", schoolId, "daily_updates"),
-        limit(limitCount)
-      );
-      const snap = await getDocs(qFallback);
-      return snap.docs.map(
-        (doc) => ({ id: doc.id, ...doc.data() } as DailyUpdate)
-      );
-    } catch (innerE) {
-      console.error(innerE);
-      return [];
-    }
+    if (!response.ok) return [];
+
+    const data = await response.json();
+    // Map or validate if needed.
+    return data || [];
+  } catch (e) {
+    console.error("Error fetching daily updates:", e);
+    return [];
   }
 };

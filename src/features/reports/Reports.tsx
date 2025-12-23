@@ -533,6 +533,7 @@ const Reports: React.FC = () => {
           />
           <div className="text-xs text-slate-500 bg-slate-50 p-3 rounded">
             <p>Ensure Roll Numbers match the Student Database.</p>
+            <p className="mt-1 italic">Maximum 500 reports allowed per file.</p>
           </div>
           {processingLogs.length > 0 && (
             <div className="bg-amber-50 border border-amber-100 rounded p-3 text-xs text-amber-800 max-h-32 overflow-y-auto space-y-1">

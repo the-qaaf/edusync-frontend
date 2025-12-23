@@ -1,18 +1,7 @@
-import { db } from "./config";
-import {
-  collection,
-  query,
-  getDocs,
-  where,
-  orderBy,
-  limit,
-  getCountFromServer,
-} from "firebase/firestore";
-import { DailyUpdate } from "@/types";
-
 export interface DashboardStats {
   totalStudents: number;
   totalUpdates: number;
+  totalBroadcasts: number;
   recentActivity: ActivityItem[];
 }
 
@@ -27,82 +16,36 @@ export interface ActivityItem {
 export const getDashboardStats = async (
   schoolId: string
 ): Promise<DashboardStats> => {
-  if (!db) {
-    return {
-      totalStudents: 0,
-      totalUpdates: 0,
-      recentActivity: [],
-    };
-  }
-
   try {
-    // 1. Total Students
-    const studentsColl = collection(db, "tenants", schoolId, "students");
-    const studentCountSnap = await getCountFromServer(studentsColl);
-    const totalStudents = studentCountSnap.data().count;
-
-    // 2. Total Daily Updates
-    const updatesColl = collection(db, "tenants", schoolId, "daily_updates");
-    const updatesCountSnap = await getCountFromServer(updatesColl);
-    const totalUpdates = updatesCountSnap.data().count;
-
-    // 3. Recent Activity (Derived from Daily Updates AND Broadcasts)
-    const recentUpdatesQuery = query(
-      updatesColl,
-      orderBy("date", "desc"),
-      limit(5)
+    const BACKEND_URL =
+      import.meta.env.VITE_BACKEND_URL || "http://localhost:8000/api";
+    const response = await fetch(
+      `${BACKEND_URL}/dashboard/stats?schoolId=${schoolId}`
     );
-    const updatesSnap = await getDocs(recentUpdatesQuery);
 
-    const broadcastsColl = collection(db, "tenants", schoolId, "broadcasts");
-    const recentBroadcastsQuery = query(
-      broadcastsColl,
-      orderBy("createdAt", "desc"),
-      limit(5)
-    );
-    const broadcastsSnap = await getDocs(recentBroadcastsQuery);
-
-    // Process Updates
-    const updateActivities: ActivityItem[] = updatesSnap.docs.map((doc) => {
-      const data = doc.data() as DailyUpdate;
+    if (!response.ok) {
+      // If server fails, we could fallback to Firestore, but for now let's return zeros
+      console.warn("Server stats failed, returning empty.");
       return {
-        id: doc.id,
-        title: `Daily Update: ${data.subject}`,
-        description: `${data.teacherName} posted homework for Class ${data.classGrade}-${data.section}`,
-        timestamp: new Date(data.date), // Assuming ISO string
-        type: "update",
+        totalStudents: 0,
+        totalUpdates: 0,
+        totalBroadcasts: 0,
+        recentActivity: [],
       };
-    });
+    }
 
-    // Process Broadcasts
-    const broadcastActivities: ActivityItem[] = broadcastsSnap.docs.map(
-      (doc) => {
-        const data = doc.data() as any; // Using any to bypass strict type if BroadcastLog mismatch, but we know structure
-        return {
-          id: doc.id,
-          title:
-            data.template === "custom"
-              ? "Broadcast Announcement"
-              : "Emergency Alert",
-          description: `Sent to ${data.recipients} recipients via ${
-            data.channels?.join(" & ") || "System"
-          }`,
-          timestamp: data.createdAt?.toDate
-            ? data.createdAt.toDate()
-            : new Date(data.date || Date.now()),
-          type: "system",
-        };
-      }
-    );
+    const data = await response.json();
 
-    // Merge and Sort
-    const recentActivity = [...updateActivities, ...broadcastActivities]
-      .sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime())
-      .slice(0, 5); // Keep top 5
+    // Convert timestamps back to Date objects
+    const recentActivity = (data.recentActivity || []).map((item: any) => ({
+      ...item,
+      timestamp: new Date(item.timestamp),
+    }));
 
     return {
-      totalStudents,
-      totalUpdates,
+      totalStudents: data.totalStudents || 0,
+      totalUpdates: data.totalUpdates || 0,
+      totalBroadcasts: data.totalBroadcasts || 0,
       recentActivity,
     };
   } catch (error) {
@@ -110,6 +53,7 @@ export const getDashboardStats = async (
     return {
       totalStudents: 0,
       totalUpdates: 0,
+      totalBroadcasts: 0,
       recentActivity: [],
     };
   }

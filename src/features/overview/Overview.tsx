@@ -7,6 +7,7 @@ import {
   Clock,
   BookOpen,
   Activity,
+  Megaphone,
 } from "lucide-react";
 import { Card, Badge, Skeleton } from "@/shared/ui";
 import {
@@ -152,10 +153,9 @@ const Overview: React.FC = () => {
           loading={loading}
         />
         <StatCard
-          title="Avg Attendance"
-          value="94%" // Placeholder until attendance module exists
-          icon={<Users size={20} />}
-          change="+2.1%"
+          title="Broadcasts"
+          value={stats?.totalBroadcasts || 0}
+          icon={<Megaphone size={20} />}
           loading={loading}
         />
         <StatCard

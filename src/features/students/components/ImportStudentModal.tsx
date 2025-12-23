@@ -59,6 +59,9 @@ export const ImportStudentModal: React.FC<ImportStudentModalProps> = ({
           <code className="text-slate-800">
             RollNumber, Name, Class, Section, ParentPhone
           </code>
+          <p className="mt-2 text-slate-500 italic">
+            Maximum 500 students allowed per file import.
+          </p>
         </div>
       </div>
     </Modal>

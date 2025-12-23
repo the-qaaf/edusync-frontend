@@ -168,7 +168,7 @@ const Broadcast: React.FC = () => {
         if (emailRecipients.length > 0) {
           // Use BATCH email endpoint for reliability
           const response = await fetch(
-            `${import.meta.env.VITE_BACKEND_URL}/api/send-batch-email`,
+            `${import.meta.env.VITE_BACKEND_URL}/send-batch-email`,
             {
               method: "POST",
               headers: {
@@ -245,7 +245,7 @@ const Broadcast: React.FC = () => {
 
             // Use BATCH WhatsApp endpoint
             const response = await fetch(
-              `${import.meta.env.VITE_BACKEND_URL}/api/whatsapp/batch-notify`,
+              `${import.meta.env.VITE_BACKEND_URL}/whatsapp/batch-notify`,
               {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },

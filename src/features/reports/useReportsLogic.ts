@@ -227,6 +227,11 @@ export const useReportsLogic = () => {
 
         newReportCards.push(report);
         processedCount++;
+
+        if (newReportCards.length > 500) {
+          toast("Batch limit exceeded! Maximum 500 reports per file.", "error");
+          return;
+        }
       }
 
       setProcessingLogs(logs);

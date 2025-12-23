@@ -83,6 +83,15 @@ export const useStudentImport = (
           schoolId: schoolId || "",
           status: "Active",
         });
+
+        if (studentsToAdd.length > 500) {
+          toast(
+            "Batch limit exceeded! Maximum 500 students per import.",
+            "error"
+          );
+          setIsImporting(false);
+          return;
+        }
       }
 
       if (studentsToAdd.length === 0) {
