@@ -2,50 +2,52 @@ import {
   CreateWebWorkerMLCEngine,
   WebWorkerMLCEngine,
   InitProgressCallback,
-  AppConfig,
 } from "@mlc-ai/web-llm";
-
-// 1. Using the standard model ID from the built-in registry
-const SELECTED_MODEL_ID = "Llama-3.2-3B-Instruct-q4f16_1-MLC";
 
 export interface ChatMessage {
   role: "user" | "assistant" | "system";
   content: string;
-  image?: string; // Base64 data URL
+  image?: string;
+}
+
+// 1. Dynamic Model Selection based on RAM
+function getBestModelId(): string {
+  const ram = (navigator as any).deviceMemory || 4; // Default to 4GB if undetected
+
+  if (ram >= 8) {
+    // Solid 12th-grade reasoning (High-end budget)
+    return "Phi-4-mini-instruct-q4f16_1-MLC";
+  } else if (ram >= 4) {
+    // Very solid "Overall" performer for mid-range
+    return "Qwen2.5-1.5B-Instruct-q4f16_1-MLC";
+  } else {
+    // Ultra-lightweight for 2GB RAM devices
+    return "Qwen2.5-0.5B-Instruct-q4f16_1-MLC";
+  }
 }
 
 export class LLMService {
   private engine: WebWorkerMLCEngine | null = null;
   private initializationPromise: Promise<void> | null = null;
+  private selectedModelId: string = getBestModelId();
 
   async initialize(onProgress: InitProgressCallback): Promise<void> {
     if (this.engine) return;
-
-    if (this.initializationPromise) {
-      return this.initializationPromise;
-    }
+    if (this.initializationPromise) return this.initializationPromise;
 
     this.initializationPromise = (async () => {
       try {
-        // Clean up any potentially corrupted cache
-        // await this.deleteOldCache();
-
         const worker = new Worker(new URL("./worker.ts", import.meta.url), {
           type: "module",
         });
 
-        // Using the built-in configuration to ensure correct model URLs and WASM versions
-        // This resolves the "Failed to execute 'add' on 'Cache'" error caused by incorrect manual config
         this.engine = await CreateWebWorkerMLCEngine(
           worker,
-          SELECTED_MODEL_ID,
-          {
-            initProgressCallback: onProgress,
-            // appConfig is omitted to use the robust default registry
-          }
+          this.selectedModelId,
+          { initProgressCallback: onProgress }
         );
       } catch (error) {
-        console.error("Failed to initialize LLM engine:", error);
+        console.error("LLM Init Failed:", error);
         throw error;
       } finally {
         this.initializationPromise = null;
@@ -55,43 +57,25 @@ export class LLMService {
     return this.initializationPromise;
   }
 
-  // Helper to cleanup previous model versions from browser cache
-  // private async deleteOldCache(): Promise<void> {
-  //   try {
-  //     if ("caches" in window) {
-  //       const keys = await caches.keys();
-  //       const oldModelId = "Llama-3.2-3B-Instruct-q4f16_1-MLC"; // Previous ID
-  //       for (const key of keys) {
-  //         if (key.includes(oldModelId)) {
-  //           await caches.delete(key);
-  //           console.log(`[LLMService] Deleted old cache: ${key}`);
-  //         }
-  //       }
-  //     }
-  //   } catch (error) {
-  //     console.warn("[LLMService] Failed to clean up old cache:", error);
-  //   }
-  // }
-
   async generateResponse(
     messages: ChatMessage[],
     onUpdate: (currentResponse: string) => void
   ): Promise<string> {
-    if (!this.engine) {
-      throw new Error("Engine not initialized");
-    }
+    if (!this.engine) throw new Error("Engine not initialized");
+
+    // RAM Optimization: Reduce context window for lower-end phones
+    const isLowRam = ((navigator as any).deviceMemory || 4) <= 4;
 
     const chunks = await this.engine.chat.completions.create({
       messages,
       stream: true,
-      max_tokens: 1024, // Reduced to 1024 for better mobile performance and battery life
-      temperature: 0.3, // Lowered to 0.3 for more accurate, less hallucinatory responses
+      max_tokens: isLowRam ? 512 : 1024,
+      temperature: 0.2, // Low temperature for academic accuracy
     });
 
     let finalMessage = "";
     for await (const chunk of chunks) {
-      const content = chunk.choices[0]?.delta?.content || "";
-      finalMessage += content;
+      finalMessage += chunk.choices[0]?.delta?.content || "";
       onUpdate(finalMessage);
     }
     return finalMessage;
