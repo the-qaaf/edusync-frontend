@@ -11,17 +11,19 @@ export interface ChatMessage {
 }
 
 // 1. Dynamic Model Selection based on RAM
+// 1. Dynamic Model Selection based on RAM
 function getBestModelId(): string {
   const ram = (navigator as any).deviceMemory || 4; // Default to 4GB if undetected
 
   if (ram >= 8) {
-    // Solid 12th-grade reasoning (High-end budget)
-    return "Phi-4-mini-instruct-q4f16_1-MLC";
+    // High-End: Llama 3.2 3B (Excellent reasoning, fits in 8GB)
+    // Note: Replaced Phi-4 as it's not yet in standard WebLLM registry
+    return "Llama-3.2-3B-Instruct-q4f16_1-MLC";
   } else if (ram >= 4) {
-    // Very solid "Overall" performer for mid-range
-    return "Qwen2.5-1.5B-Instruct-q4f16_1-MLC";
+    // Mid-Range: Llama 3.2 1B (Fast, efficient)
+    return "Llama-3.2-1B-Instruct-q4f16_1-MLC";
   } else {
-    // Ultra-lightweight for 2GB RAM devices
+    // Low-End: Qwen 2.5 0.5B (Ultra lightweight)
     return "Qwen2.5-0.5B-Instruct-q4f16_1-MLC";
   }
 }
