@@ -62,6 +62,8 @@ const Reports: React.FC = () => {
     handleProcessUpload,
     fetchReports,
     hasMore,
+    sendReportsToParents,
+    isSending,
   } = useReportsLogic();
 
   const [isPreviewModalOpen, setIsPreviewModalOpen] = useState(false);
@@ -351,10 +353,16 @@ const Reports: React.FC = () => {
         </div>
         <div className="flex gap-2 items-center">
           <Button
-            onClick={() => toast("Report cards sent to all parents", "success")}
-            disabled={!isGenerated}
+            onClick={sendReportsToParents}
+            disabled={!isGenerated || isSending}
           >
-            <Send size={16} className="mr-2" /> Send to Parents
+            {isSending ? (
+              "Sending..."
+            ) : (
+              <>
+                <Send size={16} className="mr-2" /> Send to Parents
+              </>
+            )}
           </Button>
         </div>
       </div>

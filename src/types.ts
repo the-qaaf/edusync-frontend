@@ -66,4 +66,7 @@ export interface DailyUpdate {
   subject: string;
   homework: string;
   notes?: string;
+  type?: "homework" | "remark";
+  studentName?: string;
+  studentId?: string;
 }

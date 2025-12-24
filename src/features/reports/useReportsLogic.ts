@@ -11,6 +11,7 @@ import {
   useSaveReportCards,
   useDeleteReportCard,
 } from "./hooks/useReportsQueries";
+import { sendBatchWhatsApp } from "@/services/whatsapp";
 
 export const useReportsLogic = () => {
   const { toast } = useToast();
@@ -76,6 +77,80 @@ export const useReportsLogic = () => {
   const [studentIdToDelete, setStudentIdToDelete] = useState<string | null>(
     null
   );
+
+  const [isSending, setIsSending] = useState(false);
+
+  const sendReportsToParents = async () => {
+    if (!reportCards.length || !schoolId) return;
+    if (!selectedClass || !selectedSection) {
+      toast("Please select a Class and Section first.", "error");
+      return;
+    }
+
+    setIsSending(true);
+    try {
+      // Fetch fresh student data to get phones, strictly filtering by the selected class/section
+      const { students: classRoster } = await getStudents(schoolId, 500, null, {
+        classGrade: selectedClass.replace(/\D/g, ""),
+        section: selectedSection,
+      });
+
+      // Group messages by parent phone number to handle siblings
+      const messagesByPhone = new Map<string, string[]>();
+
+      for (const report of reportCards) {
+        const student = classRoster.find((s) => s.id === report.studentId);
+        if (student && student.parentPhone) {
+          const subjectLines = report.subjects
+            .map((s) => `- ${s.name}: ${s.obtained}/${s.maxMarks} (${s.grade})`)
+            .join("\n");
+
+          const message = `*Report Card: ${
+            report.studentName
+          }*\nTerm: ${selectedTerm}\n\n*Marks Obtained:*\n${subjectLines}\n\n*Total:* ${
+            report.totalObtained
+          }/${report.totalMax} (${report.percentage}%)\n*Grade:* ${
+            report.overallGrade
+          }\n\nRegards,\n${settings?.schoolName || "School Administration"}`;
+
+          const existing = messagesByPhone.get(student.parentPhone) || [];
+          existing.push(message);
+          messagesByPhone.set(student.parentPhone, existing);
+        }
+      }
+
+      if (messagesByPhone.size === 0) {
+        toast(
+          "No parent phone numbers found linked to these reports.",
+          "error"
+        );
+        setIsSending(false);
+        return;
+      }
+
+      // Convert map to array for batch sending, merging multiple messages if needed
+      const recipients: { phone: string; text: string }[] = [];
+      messagesByPhone.forEach((messages, phone) => {
+        // If multiple messages (siblings), join them with a clear separator
+        const finalMessage = messages.join(
+          "\n\n--------------------------------\n\n"
+        );
+        recipients.push({ phone, text: finalMessage });
+      });
+
+      await sendBatchWhatsApp({
+        to: recipients,
+        type: "text",
+      });
+
+      toast(`Sent notifications to ${recipients.length} parents.`, "success");
+    } catch (e) {
+      console.error(e);
+      toast("Failed to send WhatsApp notifications.", "error");
+    } finally {
+      setIsSending(false);
+    }
+  };
 
   // --- Upload Logic ---
   const normalizeKey = (key: string) =>
@@ -301,5 +376,7 @@ export const useReportsLogic = () => {
     handleProcessUpload,
     fetchReports: () => fetchNextPage(),
     hasMore: hasNextPage,
+    sendReportsToParents,
+    isSending,
   };
 };

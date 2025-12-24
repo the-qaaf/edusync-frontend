@@ -125,11 +125,11 @@ export const dailyUpdatesRoute = createRoute({
   component: DailyUpdates,
 });
 
-// export const reportsRoute = createRoute({
-//   getParentRoute: () => dashboardRoute,
-//   path: "/reports",
-//   component: Reports,
-// });
+export const reportsRoute = createRoute({
+  getParentRoute: () => dashboardRoute,
+  path: "/reports",
+  component: Reports,
+});
 
 export const broadcastRoute = createRoute({
   getParentRoute: () => dashboardRoute,
@@ -157,7 +157,7 @@ export const routeTree = rootRoute.addChildren([
     overviewPage,
     studentsRoute,
     dailyUpdatesRoute,
-    // reportsRoute,
+    reportsRoute,
     broadcastRoute,
     settingsRoute,
   ]),
