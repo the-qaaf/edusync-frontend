@@ -10,7 +10,6 @@
     "type-check": "tsc"
   },
   "dependencies": {
-    "@mlc-ai/web-llm": "^0.2.80",
     "@tanstack/react-query": "^5.90.12",
     "@tanstack/react-router": "^1.19.1",
     "clsx": "^2.1.0",

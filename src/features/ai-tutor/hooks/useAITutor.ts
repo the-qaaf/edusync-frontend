@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useTesseract } from "react-tesseract";
-import { llmService, ChatMessage } from "../services/llm";
-import { dbService, ChatSession } from "../services/db";
+import { dbService, ChatMessage, ChatSession } from "../services/db";
+import { askAiTutor } from "../services/api";
 import {
   getSchoolSettings,
   SchoolSettings,
@@ -13,7 +13,7 @@ const generateId = () => Math.random().toString(36).substring(2, 9);
 const DEFAULT_GREETING: ChatMessage = {
   role: "assistant",
   content:
-    "Welcome. I am your AI Tutor, here to support your academic journey. I can assist with understanding complex topics, reviewing homework, or conducting practice quizzes. What subject would you like to focus on today?",
+    "Welcome! I am Lumina, your AI Tutor. I can help you understand complex topics, solve problems, or review for exams. What would you like to learn today?",
 };
 
 export const useAITutor = (schoolId?: string) => {
@@ -23,8 +23,6 @@ export const useAITutor = (schoolId?: string) => {
   const [activeSessionId, setActiveSessionId] = useState<string | null>(null);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [initProgress, setInitProgress] = useState<string>("");
-  const [isReady, setIsReady] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   // Speech State
@@ -80,22 +78,6 @@ export const useAITutor = (schoolId?: string) => {
         setIsListening(false);
       };
     }
-  }, []);
-
-  // Init LLM
-  useEffect(() => {
-    const initLLM = async () => {
-      try {
-        await llmService.initialize((progress) => {
-          setInitProgress(progress.text);
-        });
-        setIsReady(true);
-      } catch (err) {
-        console.error("Initialization failed", err);
-        setInitProgress("Failed to load AI Tutor. Please refresh.");
-      }
-    };
-    initLLM();
   }, []);
 
   // Load History
@@ -187,11 +169,8 @@ export const useAITutor = (schoolId?: string) => {
         return newSessions;
       });
 
-      // Need to handle active ID switch. Functional update of sessions makes it hard to know resulting sessions immediately.
-      // Re-implementing this logic to be safer with dependencies.
-
       const sessionToDelete = sessions.find((s) => s.id === id);
-      if (!sessionToDelete) return; // Should not happen
+      if (!sessionToDelete) return;
 
       const newSessions = sessions.filter((s) => s.id !== id);
       setSessions(newSessions); // Optimistic UI
@@ -202,8 +181,6 @@ export const useAITutor = (schoolId?: string) => {
         if (newSessions.length > 0) {
           setActiveSessionId(newSessions[0].id);
         } else {
-          // We can't easily call createNewSession because it's async and we want to set state.
-          // Duplicating logic heavily or using a helper.
           const newSession: ChatSession = {
             id: generateId(),
             title: "New Chat",
@@ -223,12 +200,7 @@ export const useAITutor = (schoolId?: string) => {
     async (textOverride?: string) => {
       const text = textOverride ?? input;
 
-      if (
-        (!text.trim() && !imageFile) ||
-        !isReady ||
-        isLoading ||
-        !activeSessionId
-      )
+      if ((!text.trim() && !imageFile) || isLoading || !activeSessionId)
         return toast("Please enter a message or upload an image");
 
       const currentSession = sessions.find((s) => s.id === activeSessionId);
@@ -307,60 +279,48 @@ export const useAITutor = (schoolId?: string) => {
       setIsLoading(true);
 
       try {
-        const contextMessages: ChatMessage[] = [
-          {
-            role: "system",
-            content:
-              "You are a friendly, encouraging, and safe AI tutor for students ranging for LKG to 12th grade. Adapt your language and explanation complexity based on the user's questions. If the user asks about advanced calculus, be precise and academic. If they ask about basic shapes, be playful and simple. Always prioritize safety and refrain from answering non-educational, unsafe, or inappropriate queries. Encourage critical thinking.",
-          },
-          ...updatedWithUser.slice(-10),
-        ];
-
         // Placeholder assistant message
         setSessions((prev) =>
           prev.map((s) => {
             if (s.id === activeSessionId) {
               return {
                 ...s,
-                messages: [
-                  ...updatedWithUser,
-                  { role: "assistant", content: "" },
-                ],
+                messages: [...updatedWithUser],
               };
             }
             return s;
           })
         );
 
-        await llmService.generateResponse(
-          contextMessages,
-          (currentResponse) => {
-            setSessions((prev) => {
-              return prev.map((s) => {
-                if (s.id === activeSessionId) {
-                  const newMsgs = [...s.messages];
-                  if (newMsgs[newMsgs.length - 1].role === "assistant") {
-                    newMsgs[newMsgs.length - 1] = {
-                      role: "assistant",
-                      content: currentResponse,
-                    };
-                  }
-                  return { ...s, messages: newMsgs };
-                }
-                return s;
-              });
-            });
-          }
-        );
+        // Call the Cloud API
+        const answer = await askAiTutor(finalContent);
 
-        // Save final state
+        // Update with answer
         setSessions((prev) => {
-          const s = prev.find((x) => x.id === activeSessionId);
-          if (s) dbService.saveSession(s);
-          return prev;
+          return prev.map((s) => {
+            if (s.id === activeSessionId) {
+              const newMsgs = [
+                ...updatedWithUser,
+                {
+                  role: "assistant" as const, // explicit type casting
+                  content: answer,
+                },
+              ];
+              // Also update DB
+              const sessionToSave = {
+                ...s,
+                messages: newMsgs,
+                updatedAt: Date.now(),
+              };
+              dbService.saveSession(sessionToSave);
+              return sessionToSave;
+            }
+            return s;
+          });
         });
       } catch (error) {
         console.error("Chat error", error);
+        toast("Failed to get response from AI Tutor");
       } finally {
         setIsLoading(false);
       }
@@ -369,7 +329,6 @@ export const useAITutor = (schoolId?: string) => {
       input,
       sessions,
       activeSessionId,
-      isReady,
       isLoading,
       imageFile,
       imagePreview,
@@ -410,8 +369,6 @@ export const useAITutor = (schoolId?: string) => {
     input,
     setInput,
     isLoading,
-    initProgress,
-    isReady,
     isSidebarOpen,
     setIsSidebarOpen,
     isListening,
@@ -426,6 +383,6 @@ export const useAITutor = (schoolId?: string) => {
     deleteSession,
     handleSend,
     updateFeedback,
-    messages, // Exporting for convenience
+    messages,
   };
 };
