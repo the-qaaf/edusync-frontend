@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { createPortal } from "react-dom";
 import {
   FileText,
   Send,
@@ -21,7 +22,11 @@ import {
 import { useToast } from "@/shared/ui/Toast";
 import { Student } from "@/types";
 import { ACADEMIC_CLASSES, ACADEMIC_SECTIONS } from "@/shared/constants";
-import { useReportsLogic } from "./useReportsLogic";
+import {
+  useReportsLogic,
+  EXCLUDED_REPORT_KEYS,
+  normalizeKey,
+} from "./useReportsLogic";
 import { usePageTitle } from "@/shared/hooks/usePageTitle";
 
 // @ts-ignore
@@ -83,12 +88,14 @@ const Reports: React.FC = () => {
     const report = reportCards.find((r) => r.studentId === student.id);
     if (report) {
       setStudentMarks(
-        report.subjects.map((s) => ({
-          subject: s.name,
-          maxMarks: s.maxMarks,
-          obtained: s.obtained,
-          grade: s.grade,
-        }))
+        report.subjects
+          .filter((s) => !EXCLUDED_REPORT_KEYS.includes(normalizeKey(s.name)))
+          .map((s) => ({
+            subject: s.name,
+            maxMarks: s.maxMarks,
+            obtained: s.obtained,
+            grade: s.grade,
+          }))
       );
     } else {
       setStudentMarks([]);
@@ -582,39 +589,52 @@ const Reports: React.FC = () => {
       </Modal>
 
       {/* Full Screen Premium Report Card Preview */}
-      {isPreviewModalOpen && activeStudent && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-md p-4 animate-in fade-in duration-200">
-          <div className="relative w-full max-w-4xl h-full flex flex-col">
+      {isPreviewModalOpen &&
+        activeStudent &&
+        createPortal(
+          <div className="fixed inset-0 z-[9999] flex flex-col bg-slate-900/95 backdrop-blur-sm animate-in fade-in duration-200">
             {/* Toolbar */}
-            <div className="flex justify-between items-center p-4 text-white">
-              <h3 className="font-semibold text-lg flex items-center gap-2">
-                <FileText size={20} /> Report Preview
+            <div className="flex justify-between items-center p-4 px-8 border-b border-white/10 bg-black/20 text-white shrink-0">
+              <h3 className="font-semibold text-lg flex items-center gap-3">
+                <div className="p-2 bg-blue-600 rounded-lg">
+                  <FileText size={20} className="text-white" />
+                </div>
+                <div>
+                  <span className="block text-sm font-normal text-slate-400">
+                    Previewing Report for
+                  </span>
+                  {activeStudent.name}
+                </div>
               </h3>
               <div className="flex gap-3">
                 <Button
-                  variant="secondary"
+                  variant="ghost"
                   onClick={() => setIsPreviewModalOpen(false)}
-                  className="bg-white/10 hover:bg-white/20 text-white border-transparent"
+                  className="text-slate-300 hover:text-white hover:bg-white/10"
                 >
-                  {" "}
-                  Close{" "}
+                  Close Esc
                 </Button>
                 <Button
                   onClick={handleDownloadPDF}
-                  className="bg-white text-black hover:bg-gray-100"
+                  className="bg-blue-600 text-white hover:bg-blue-700 shadow-lg shadow-blue-500/20"
                 >
-                  {" "}
-                  <Printer size={16} className="mr-2" /> Download PDF{" "}
+                  <Printer size={16} className="mr-2" /> Download PDF
                 </Button>
               </div>
             </div>
 
             {/* Scrollable Preview Area */}
-            <div className="flex-1 overflow-auto flex justify-center p-8">
+            <div
+              className="flex-1 overflow-auto flex justify-center p-8 lg:p-12 cursor-default"
+              onClick={(e) =>
+                e.target === e.currentTarget && setIsPreviewModalOpen(false)
+              }
+            >
               {/* Actual Report A4 Container */}
               <div
                 id="report-card-preview"
-                className="bg-white text-slate-900 w-[210mm] min-h-[297mm] shadow-2xl relative overflow-hidden flex flex-col"
+                className="bg-white text-slate-900 w-[210mm] min-h-[297mm] shadow-2xl relative overflow-hidden flex flex-col shrink-0 origin-top transform transition-transform"
+                style={{ height: "297mm" }}
               >
                 {renderHeader()}
                 {renderStudentInfo()}
@@ -623,9 +643,9 @@ const Reports: React.FC = () => {
                 {renderSignatures()}
               </div>
             </div>
-          </div>
-        </div>
-      )}
+          </div>,
+          document.body
+        )}
     </div>
   );
 };

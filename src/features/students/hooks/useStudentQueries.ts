@@ -10,7 +10,6 @@ import {
   addStudent,
   updateStudent,
   batchAddStudents,
-  PaginatedStudents,
 } from "@/services/firebase/students";
 import { Student } from "@/types";
 

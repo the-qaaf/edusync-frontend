@@ -13,6 +13,32 @@ import {
 } from "./hooks/useReportsQueries";
 import { sendBatchWhatsApp } from "@/services/whatsapp";
 
+export const normalizeKey = (key: string) =>
+  key.toLowerCase().replace(/[^a-z0-9]/g, "");
+
+export const EXCLUDED_REPORT_KEYS = [
+  "rollnumber",
+  "rollno",
+  "studentname",
+  "name",
+  "class",
+  "section",
+  "classteachername",
+  "classteacher",
+  "principalname",
+  "principal",
+  "contact",
+  "contactnumber",
+  "phone",
+  "mobile",
+  "mobilenumber",
+  "parentphone",
+  "email",
+  "admissionno",
+  "dob",
+  "gender",
+];
+
 export const useReportsLogic = () => {
   const { toast } = useToast();
   const { settings } = useSchoolSettings();
@@ -94,6 +120,7 @@ export const useReportsLogic = () => {
         classGrade: selectedClass.replace(/\D/g, ""),
         section: selectedSection,
       });
+      console.log("🚀 ~ sendReportsToParents ~ classRoster:", classRoster);
 
       // Group messages by parent phone number to handle siblings
       const messagesByPhone = new Map<string, string[]>();
@@ -101,15 +128,28 @@ export const useReportsLogic = () => {
       for (const report of reportCards) {
         const student = classRoster.find((s) => s.id === report.studentId);
         if (student && student.parentPhone) {
-          const subjectLines = report.subjects
+          const validSubjects = report.subjects.filter(
+            (s) => !EXCLUDED_REPORT_KEYS.includes(normalizeKey(s.name))
+          );
+
+          const totalObtained = validSubjects.reduce(
+            (acc, s) => acc + s.obtained,
+            0
+          );
+          const totalMax = validSubjects.reduce(
+            (acc, s) => acc + s.maxMarks,
+            0
+          );
+          const percentage =
+            totalMax > 0 ? ((totalObtained / totalMax) * 100).toFixed(2) : "0";
+
+          const subjectLines = validSubjects
             .map((s) => `- ${s.name}: ${s.obtained}/${s.maxMarks} (${s.grade})`)
             .join("\n");
 
           const message = `*Report Card: ${
             report.studentName
-          }*\nTerm: ${selectedTerm}\n\n*Marks Obtained:*\n${subjectLines}\n\n*Total:* ${
-            report.totalObtained
-          }/${report.totalMax} (${report.percentage}%)\n*Grade:* ${
+          }*\nTerm: ${selectedTerm}\n\n*Marks Obtained:*\n${subjectLines}\n\n*Total:* ${totalObtained}/${totalMax} (${percentage}%)\n*Grade:* ${
             report.overallGrade
           }\n\nRegards,\n${settings?.schoolName || "School Administration"}`;
 
@@ -140,6 +180,9 @@ export const useReportsLogic = () => {
 
       await sendBatchWhatsApp({
         to: recipients,
+        text: recipients
+          .map((r) => r.text)
+          .join("\n\n--------------------------------\n\n"),
         type: "text",
       });
 
@@ -153,8 +196,6 @@ export const useReportsLogic = () => {
   };
 
   // --- Upload Logic ---
-  const normalizeKey = (key: string) =>
-    key.toLowerCase().replace(/[^a-z0-9]/g, "");
 
   const handleProcessUpload = async () => {
     if (!uploadedFile || !schoolId) return;
@@ -172,22 +213,10 @@ export const useReportsLogic = () => {
         return;
       }
 
-      // Fetch roster for validation
-      // Optimization: This is still largely manual, but could be a query.
-      // Keeping it as async for now as it's a specific validation step.
       const { students: classRoster } = await getStudents(schoolId, 200, null, {
-        classGrade: selectedClass.replace(/\D/g, ""),
+        classGrade: selectedClass.replace(/\D/g, "").replace("Class", ""),
         section: selectedSection,
       });
-
-      if (classRoster.length === 0) {
-        toast(
-          `No students found in DB for Class ${selectedClass} - ${selectedSection}. Aborting.`,
-          "error"
-        );
-        return;
-      }
-
       const newReportCards: ReportCard[] = [];
       const logs: string[] = [];
       let processedCount = 0;
@@ -227,18 +256,7 @@ export const useReportsLogic = () => {
         }
 
         // Extract Dynamic Subjects
-        const fixedKeys = [
-          "rollnumber",
-          "rollno",
-          "studentname",
-          "name",
-          "class",
-          "section",
-          "classteachername",
-          "classteacher",
-          "principalname",
-          "principal",
-        ];
+        const fixedKeys = EXCLUDED_REPORT_KEYS;
         const subjectKeys = Object.keys(row).filter(
           (k) => !fixedKeys.includes(normalizeKey(k))
         );

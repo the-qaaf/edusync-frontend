@@ -24,6 +24,10 @@ export const SchoolSettingsProvider: React.FC<{
     refetch,
   } = useSchoolSettingsQuery(schoolId);
 
+  React.useEffect(() => {
+    console.log("[SchoolSettingsProvider] Mounted");
+  }, []);
+
   return (
     <SchoolSettingsContext.Provider
       value={{ settings, loading, refreshSettings: refetch }}
@@ -36,6 +40,9 @@ export const SchoolSettingsProvider: React.FC<{
 export const useSchoolSettings = () => {
   const context = useContext(SchoolSettingsContext);
   if (context === undefined) {
+    console.error(
+      "[useSchoolSettings] Context is undefined! Ensure the component is wrapped in SchoolSettingsProvider."
+    );
     throw new Error(
       "useSchoolSettings must be used within a SchoolSettingsProvider"
     );
