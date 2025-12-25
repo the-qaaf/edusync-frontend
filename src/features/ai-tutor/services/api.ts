@@ -9,7 +9,6 @@ export const askAiTutor = async (question: string): Promise<string> => {
       },
       body: JSON.stringify({ question }),
     });
-    console.log("🚀 ~ askAiTutor ~ response:", response);
 
     const data = await response.json();
 
