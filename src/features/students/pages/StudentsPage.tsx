@@ -7,6 +7,8 @@ import { StudentFilters } from "../components/StudentFilters";
 import { AddStudentModal } from "../components/AddStudentModal";
 import { ImportStudentModal } from "../components/ImportStudentModal";
 import { TransferStudentModal } from "../components/TransferStudentModal";
+import { EditStudentModal } from "../components/EditStudentModal";
+import { ConfirmModal } from "@/shared/ui";
 import { Student } from "@/types";
 import { usePageTitle } from "@/shared/hooks/usePageTitle";
 
@@ -29,14 +31,21 @@ const StudentsPage: React.FC = () => {
     clearFilters,
 
     addStudent,
+    updateStudent,
     transferStudent,
     markStudentAsLeft,
+    deleteStudent,
   } = useStudents();
 
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [isImportOpen, setIsImportOpen] = useState(false);
   const [isTransferOpen, setIsTransferOpen] = useState(false);
+  const [isEditOpen, setIsEditOpen] = useState(false);
   const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
+
+  // Confirmations
+  const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [markLeftId, setMarkLeftId] = useState<string | null>(null);
 
   const handleTransferClick = (student: Student) => {
     setSelectedStudent(student);
@@ -44,13 +53,16 @@ const StudentsPage: React.FC = () => {
   };
 
   const handleMarkLeft = (id: string) => {
-    if (
-      window.confirm(
-        "Are you sure you want to mark this student as 'Left'? This will archive their records."
-      )
-    ) {
-      markStudentAsLeft(id);
-    }
+    setMarkLeftId(id);
+  };
+
+  const handleEditClick = (student: Student) => {
+    setSelectedStudent(student);
+    setIsEditOpen(true);
+  };
+
+  const handleDeleteClick = (id: string) => {
+    setDeleteId(id);
   };
 
   return (
@@ -92,6 +104,8 @@ const StudentsPage: React.FC = () => {
           loading={loading}
           onTransfer={handleTransferClick}
           onMarkLeft={handleMarkLeft}
+          onEdit={handleEditClick}
+          onDelete={handleDeleteClick}
         />
 
         {/* Pagination Footer */}
@@ -149,6 +163,45 @@ const StudentsPage: React.FC = () => {
         onConfirm={async (student, targetClass, targetSection) => {
           await transferStudent(student.id, targetClass, targetSection);
         }}
+      />
+
+      <EditStudentModal
+        isOpen={isEditOpen}
+        onClose={() => setIsEditOpen(false)}
+        student={selectedStudent}
+        onUpdate={async (id, data) => {
+          await updateStudent(id, data);
+        }}
+      />
+
+      <ConfirmModal
+        isOpen={!!deleteId}
+        onClose={() => setDeleteId(null)}
+        title="Delete Student"
+        description="Are you sure you want to PERMANENTLY delete this student? This action cannot be undone."
+        onConfirm={async () => {
+          if (deleteId) {
+            await deleteStudent(deleteId);
+            setDeleteId(null);
+          }
+        }}
+        variant="danger"
+        confirmText="Delete Permanently"
+      />
+
+      <ConfirmModal
+        isOpen={!!markLeftId}
+        onClose={() => setMarkLeftId(null)}
+        title="Mark as Left"
+        description="Are you sure you want to mark this student as 'Left'? They will be moved to the archive."
+        onConfirm={async () => {
+          if (markLeftId) {
+            await markStudentAsLeft(markLeftId);
+            setMarkLeftId(null);
+          }
+        }}
+        variant="warning"
+        confirmText="Mark Left"
       />
     </div>
   );

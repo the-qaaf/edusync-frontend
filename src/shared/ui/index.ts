@@ -9,3 +9,5 @@ export * from "./textarea/Textarea";
 export * from "./file-upload/FileUpload";
 export * from "./Toast";
 export * from "./Skeleton";
+export * from "./dropdown/Dropdown";
+export * from "./modal/ConfirmModal";

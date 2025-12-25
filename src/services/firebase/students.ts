@@ -148,3 +148,21 @@ export const batchAddStudents = async (
     throw e;
   }
 };
+
+/**
+ * Deletes a student via Backend.
+ */
+export const deleteStudent = async (schoolId: string, studentId: string) => {
+  try {
+    const response = await fetch(
+      `${getBackendUrl()}/students/delete?schoolId=${schoolId}&studentId=${studentId}`,
+      {
+        method: "DELETE",
+      }
+    );
+    if (!response.ok) throw new Error("Failed to delete student");
+  } catch (e) {
+    console.error("Error deleting student: ", e);
+    throw e;
+  }
+};

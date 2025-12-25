@@ -51,7 +51,9 @@ export const ChatBubble: React.FC<ChatBubbleProps> = ({
   // Cleanup speech on unmount
   React.useEffect(() => {
     return () => {
-      window.speechSynthesis.cancel();
+      if (typeof window !== "undefined" && window.speechSynthesis) {
+        window.speechSynthesis.cancel();
+      }
     };
   }, []);
 
@@ -87,6 +89,11 @@ export const ChatBubble: React.FC<ChatBubbleProps> = ({
   };
 
   const handleSpeak = () => {
+    if (typeof window === "undefined" || !window.speechSynthesis) {
+      alert("Text-to-speech is not supported in this browser.");
+      return;
+    }
+
     const synth = window.speechSynthesis;
 
     if (isPlaying) {

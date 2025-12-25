@@ -68,17 +68,17 @@ export const InputArea = ({
       {/* Floating Modern Container */}
       <div
         className={twMerge(
-          "relative bg-white border border-slate-200 shadow-2xl shadow-slate-200/50 rounded-3xl transition-all duration-300 ease-out p-1.5 pl-4",
+          "relative bg-white border border-slate-200 shadow-2xl shadow-slate-200/50 rounded-2xl md:rounded-3xl transition-all duration-300 ease-out p-1 md:p-1.5 pl-3 md:pl-4",
           "focus-within:border-blue-400 focus-within:ring-4 focus-within:ring-blue-50/50",
           isLoading && "opacity-70 pointer-events-none"
         )}
       >
-        <div className="flex items-end gap-3 min-h-[52px]">
+        <div className="flex items-end gap-2 md:gap-3 min-h-[48px] md:min-h-[52px]">
           {/* Main Input Area */}
-          <div className="flex-1 py-3.5">
+          <div className="flex-1 py-2 md:py-3.5">
             <textarea
               ref={textareaRef}
-              className="w-full bg-transparent border-none p-0 text-[15px] relative top-1 leading-relaxed text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-0 resize-none overflow-y-auto max-h-[180px]"
+              className="w-full bg-transparent border-none p-0 text-sm md:text-[15px] relative top-1 leading-relaxed text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-0 resize-none overflow-y-auto max-h-[120px] md:max-h-[180px]"
               placeholder={
                 isRecognizing
                   ? "Wait, analyzing image..."
@@ -93,16 +93,17 @@ export const InputArea = ({
           </div>
 
           {/* Actions Cluster */}
-          <div className="flex items-center gap-1.5 pb-1.5 pr-1.5">
+          <div className="flex items-center gap-0.5 md:gap-1.5 pb-1 md:pb-1.5 pr-1 md:pr-1.5">
             {/* Image Upload */}
             <button
               onClick={() => fileInputRef.current?.click()}
-              className="group flex items-center justify-center w-9 h-9 rounded-full hover:bg-slate-100 text-slate-400 hover:text-slate-600 transition-all"
+              className="group flex items-center justify-center w-8 h-8 md:w-9 md:h-9 rounded-full hover:bg-slate-100 text-slate-400 hover:text-slate-600 transition-all"
               title="Attach Image"
             >
+              <Paperclip size={16} className="md:hidden" />
               <Paperclip
                 size={18}
-                className="group-hover:stroke-[2.5px] transition-all"
+                className="hidden md:block group-hover:stroke-[2.5px] transition-all"
               />
             </button>
 
@@ -110,7 +111,7 @@ export const InputArea = ({
             <button
               onClick={onToggleListening}
               className={twMerge(
-                "flex items-center justify-center w-9 h-9 rounded-full transition-all duration-300",
+                "flex items-center justify-center w-8 h-8 md:w-9 md:h-9 rounded-full transition-all duration-300",
                 isListening
                   ? "bg-red-50 text-red-500 ring-2 ring-red-100 ring-offset-1 animate-pulse"
                   : "hover:bg-slate-100 text-slate-400 hover:text-slate-600"
@@ -120,22 +121,26 @@ export const InputArea = ({
               {isListening ? (
                 <div className="relative flex items-center justify-center">
                   <span className="w-full h-full absolute rounded-full bg-red-400 opacity-20 animate-ping"></span>
-                  <MicOff size={18} />
+                  <MicOff size={16} className="md:hidden" />
+                  <MicOff size={18} className="hidden md:block" />
                 </div>
               ) : (
-                <Mic size={18} />
+                <>
+                  <Mic size={16} className="md:hidden" />
+                  <Mic size={18} className="hidden md:block" />
+                </>
               )}
             </button>
 
             {/* Divider */}
-            <div className="w-px h-6 bg-slate-200 mx-0.5"></div>
+            <div className="w-px h-5 md:h-6 bg-slate-200 mx-0.5"></div>
 
             {/* Send Button */}
             <button
               onClick={() => onSend()}
               disabled={isLoading || !hasImageOrInput}
               className={twMerge(
-                "flex items-center justify-center w-10 h-10 rounded-2xl transition-all duration-300 transform",
+                "flex items-center justify-center w-8 h-8 md:w-10 md:h-10 rounded-xl md:rounded-2xl transition-all duration-300 transform",
                 hasImageOrInput && !isLoading
                   ? "bg-gradient-to-tr from-blue-600 to-indigo-600 text-white shadow-lg shadow-blue-200 hover:shadow-blue-300 hover:scale-[1.05] active:scale-[0.95]"
                   : "bg-slate-100 text-slate-300 cursor-not-allowed"
@@ -143,15 +148,30 @@ export const InputArea = ({
             >
               {isLoading ? (
                 <Sparkles
+                  size={16}
+                  className="animate-spin md:hidden"
+                  style={{ animationDuration: "2s" }}
+                />
+              ) : (
+                <Send
+                  size={16}
+                  className={twMerge(
+                    "transition-all md:hidden",
+                    hasImageOrInput && "ml-0.5"
+                  )}
+                />
+              )}
+              {isLoading ? (
+                <Sparkles
                   size={18}
-                  className="animate-spin"
+                  className="animate-spin hidden md:block"
                   style={{ animationDuration: "2s" }}
                 />
               ) : (
                 <Send
                   size={18}
                   className={twMerge(
-                    "transition-all",
+                    "transition-all hidden md:block",
                     hasImageOrInput && "ml-0.5"
                   )}
                 />

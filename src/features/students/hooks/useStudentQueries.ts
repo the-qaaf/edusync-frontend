@@ -10,6 +10,7 @@ import {
   addStudent,
   updateStudent,
   batchAddStudents,
+  deleteStudent,
 } from "@/services/firebase/students";
 import { Student } from "@/types";
 
@@ -91,6 +92,22 @@ export function useBatchAddStudents() {
       schoolId: string;
       students: any[];
     }) => batchAddStudents(schoolId, students),
+    onSuccess: (_, { schoolId }) => {
+      queryClient.invalidateQueries({ queryKey: studentKeys.lists() });
+    },
+  });
+}
+
+export function useDeleteStudent() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      schoolId,
+      studentId,
+    }: {
+      schoolId: string;
+      studentId: string;
+    }) => deleteStudent(schoolId, studentId),
     onSuccess: (_, { schoolId }) => {
       queryClient.invalidateQueries({ queryKey: studentKeys.lists() });
     },

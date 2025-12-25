@@ -8,6 +8,7 @@ import {
   useAddStudent,
   useUpdateStudent,
   useBatchAddStudents,
+  useDeleteStudent,
 } from "./useStudentQueries";
 
 const PAGE_SIZE = 10;
@@ -54,6 +55,7 @@ export const useStudents = () => {
   const { mutateAsync: performAddStudent } = useAddStudent();
   const { mutateAsync: performUpdateStudent } = useUpdateStudent();
   const { mutateAsync: performBatchAdd } = useBatchAddStudents();
+  const { mutateAsync: performDeleteStudent } = useDeleteStudent();
 
   // Reset pagination when filters change
   useEffect(() => {
@@ -144,6 +146,19 @@ export const useStudents = () => {
     return handleUpdateStudent(id, { status: "Left" });
   };
 
+  const handleDeleteStudent = async (id: string) => {
+    if (!schoolId) return false;
+    try {
+      await performDeleteStudent({ schoolId, studentId: id });
+      toast("Student deleted successfully", "success");
+      return true;
+    } catch (error) {
+      console.error(error);
+      toast("Failed to delete student", "error");
+      return false;
+    }
+  };
+
   const clearFilters = useCallback(() => {
     setFilterClass(null);
     setFilterSection(null);
@@ -172,5 +187,6 @@ export const useStudents = () => {
     importStudents: handleImportStudents,
     transferStudent: handleTransferStudent,
     markStudentAsLeft: handleMarkLeft,
+    deleteStudent: handleDeleteStudent,
   };
 };

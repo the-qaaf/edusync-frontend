@@ -117,28 +117,32 @@ export const AITutorPage = () => {
         </div>
 
         {/* Minimal Header */}
-        <header className="z-10 px-6 py-4 flex items-center justify-between shrink-0">
-          <div className="flex items-center gap-4">
+        <header className="z-10 px-4 md:px-6 py-3 md:py-4 flex items-center justify-between shrink-0 border-b border-slate-200/50 md:border-none">
+          <div className="flex items-center gap-3 min-w-0">
             <button
               onClick={() => setIsSidebarOpen(true)}
-              className="md:hidden p-2 -ml-2 text-slate-500 hover:bg-white hover:shadow rounded-xl transition-all"
+              className="md:hidden p-2 -ml-1 text-slate-500 hover:bg-white hover:shadow rounded-xl transition-all"
             >
               <Menu size={20} />
             </button>
 
-            <div className="flex flex-col flex-1 min-w-0">
-              <div className="flex items-center gap-3 flex-wrap">
-                <h2 className="font-bold text-slate-800 text-lg leading-tight tracking-tight break-words line-clamp-2 md:line-clamp-none">
-                  {activeSessionTitle || "New Conversation"}
-                </h2>
-              </div>
+            <div className="flex flex-col min-w-0">
+              <h2 className="font-bold text-slate-800 text-base md:text-lg leading-tight tracking-tight truncate">
+                {activeSessionTitle || "New Conversation"}
+              </h2>
             </div>
           </div>
 
-          <div className="flex items-center gap-2 pl-4">
-            <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest border-r border-slate-200 pr-3 mr-1">
-              Powered by Google
-            </span>
+          <div className="flex items-center gap-3 shrink-0">
+            <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-50 border border-emerald-100/50 shadow-sm transition-all hover:bg-emerald-100/50">
+              <div className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+              </div>
+              <span className="text-[10px] font-bold text-emerald-700 uppercase tracking-wider leading-none">
+                Online
+              </span>
+            </div>
           </div>
         </header>
 

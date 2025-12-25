@@ -1,13 +1,20 @@
-import React from "react";
-import { UserMinus } from "lucide-react";
+import { Badge, Button, Skeleton, Dropdown, DropdownItem } from "@/shared/ui";
 import { Student } from "@/types";
-import { Badge, Button, Skeleton } from "@/shared/ui";
+import {
+  Edit2,
+  ArrowRightLeft,
+  UserMinus,
+  Trash2,
+  MoreHorizontal,
+} from "lucide-react";
 
 interface StudentTableProps {
   students: Student[];
   loading: boolean;
   onTransfer: (student: Student) => void;
   onMarkLeft: (id: string) => void;
+  onEdit: (student: Student) => void;
+  onDelete: (id: string) => void;
 }
 
 export const StudentTable: React.FC<StudentTableProps> = ({
@@ -15,6 +22,8 @@ export const StudentTable: React.FC<StudentTableProps> = ({
   loading,
   onTransfer,
   onMarkLeft,
+  onEdit,
+  onDelete,
 }) => {
   return (
     <div className="overflow-x-auto min-h-[300px]">
@@ -93,25 +102,34 @@ export const StudentTable: React.FC<StudentTableProps> = ({
                   </Badge>
                 </td>
                 <td className="px-6 py-4 text-right">
-                  <div className="flex justify-end gap-2">
-                    <Button
-                      variant="secondary"
-                      size="sm"
-                      className="h-7 text-xs"
-                      onClick={() => onTransfer(student)}
-                    >
-                      Transfer
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="h-7 text-xs text-red-600 hover:text-red-700 hover:bg-red-50"
-                      onClick={() => onMarkLeft(student.id)}
-                      title="Mark as Left"
-                    >
-                      <UserMinus size={14} />
-                    </Button>
-                  </div>
+                  <Dropdown
+                    trigger={
+                      <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                        <MoreHorizontal className="h-4 w-4" />
+                      </Button>
+                    }
+                  >
+                    <DropdownItem onClick={() => onEdit(student)}>
+                      <div className="flex items-center">
+                        <Edit2 size={14} className="mr-2" /> Edit
+                      </div>
+                    </DropdownItem>
+                    <DropdownItem onClick={() => onTransfer(student)}>
+                      <div className="flex items-center">
+                        <ArrowRightLeft size={14} className="mr-2" /> Transfer
+                      </div>
+                    </DropdownItem>
+                    <DropdownItem onClick={() => onMarkLeft(student.id)}>
+                      <div className="flex items-center text-orange-600">
+                        <UserMinus size={14} className="mr-2" /> Mark as Left
+                      </div>
+                    </DropdownItem>
+                    <DropdownItem danger onClick={() => onDelete(student.id)}>
+                      <div className="flex items-center">
+                        <Trash2 size={14} className="mr-2" /> Delete
+                      </div>
+                    </DropdownItem>
+                  </Dropdown>
                 </td>
               </tr>
             ))
