@@ -20,7 +20,6 @@ import {
   Checkbox,
   Modal,
   Skeleton,
-  Input,
 } from "@/shared/ui";
 
 import { ACADEMIC_CLASSES, ACADEMIC_SECTIONS } from "@/shared/constants";
@@ -123,9 +122,7 @@ const Broadcast: React.FC = () => {
         break;
       case "emergency":
         setMessage(
-          `URGENT: This is an emergency alert from ${
-            settings?.schoolName || "Greenfield School"
-          }. Please check the parent portal immediately for critical information.`
+          `URGENT: This is an emergency alert. Please check the parent portal immediately for critical information.`
         );
         break;
       case "custom":
@@ -261,8 +258,11 @@ const Broadcast: React.FC = () => {
                         {
                           type: "text",
                           text: settings?.schoolName || "School Administration",
-                        }, // {{1}} School Name
-                        { type: "text", text: message }, // {{2}} Message Content
+                        },
+                        {
+                          type: "text",
+                          text: message,
+                        },
                       ],
                     },
                   ],
