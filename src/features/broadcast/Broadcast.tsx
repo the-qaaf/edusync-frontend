@@ -251,45 +251,18 @@ const Broadcast: React.FC = () => {
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
                   to: waRecipients, // Full contact objects including phone
-                  templateName: "school_broadcast_v1",
-                  language: "en",
+                  templateName: "school_updates_v2",
+                  language: "en_US",
                   text: message, // fallback for internal logs if needed
                   components: [
-                    {
-                      type: "header",
-                      parameters: [
-                        {
-                          type: "text",
-                          text:
-                            selectedTemplate === "closure"
-                              ? "Weather Alert"
-                              : selectedTemplate === "delay"
-                              ? "Transport Alert"
-                              : selectedTemplate === "emergency"
-                              ? "Emergency"
-                              : "Announcement",
-                        },
-                      ],
-                    },
                     {
                       type: "body",
                       parameters: [
                         {
                           type: "text",
-                          text: settings?.schoolName || "EduSync School",
-                        }, // {{school_name}}
-                        {
-                          type: "text",
-                          text:
-                            selectedTemplate === "closure"
-                              ? "School Closure"
-                              : selectedTemplate === "delay"
-                              ? "Bus Delay"
-                              : selectedTemplate === "emergency"
-                              ? "Emergency Alert"
-                              : "General Update",
-                        }, // {{alert_title}}
-                        { type: "text", text: message }, // {{message_detail}}
+                          text: settings?.schoolName || "School Administration",
+                        }, // {{1}} School Name
+                        { type: "text", text: message }, // {{2}} Message Content
                       ],
                     },
                   ],
