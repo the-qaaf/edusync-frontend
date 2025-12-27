@@ -41,7 +41,7 @@ export const LandingPage = () => {
               <span className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white shadow-lg shadow-blue-500/30">
                 <GraduationCap size={20} />
               </span>
-              EduSync Connect
+              EduSync
             </Link>
             <span className="text-[10px] font-semibold tracking-widest text-slate-500 uppercase mt-1 ml-10">
               by The Qaaf Development
@@ -292,15 +292,14 @@ export const LandingPage = () => {
           <div className="flex flex-col max-w-sm">
             <span className="text-xl font-bold text-slate-900 flex items-center gap-2">
               <GraduationCap size={24} className="text-blue-600" />
-              EduSync Connect
+              EduSync
             </span>
             <p className="text-slate-500 mt-4 leading-relaxed">
               Making education accessible, intelligent, and engaging for
               everyone. Proudly built by The Qaaf Development.
             </p>
             <span className="text-sm text-slate-400 mt-6">
-              © 2025 EduSync Connect. All Rights Reserved. EduSync Connect is a
-              brand owned and operated by The Qaaf Development.
+              © {new Date().getFullYear()} The Qaaf Development
             </span>
           </div>
 
