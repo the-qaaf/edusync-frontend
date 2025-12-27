@@ -249,7 +249,7 @@ const Broadcast: React.FC = () => {
                 body: JSON.stringify({
                   to: waRecipients, // Full contact objects including phone
                   templateName: "updates_template_v1",
-                  language: "en",
+                  language: "en_US",
                   text: message, // fallback for internal logs if needed
                   components: [
                     {
@@ -261,7 +261,7 @@ const Broadcast: React.FC = () => {
                         },
                         {
                           type: "text",
-                          text: message,
+                          text: `${message}`,
                         },
                       ],
                     },
