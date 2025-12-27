@@ -19,6 +19,7 @@ const Login: React.FC = () => {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [remember, setRemember] = useState(false);
   const [loading, setLoading] = useState(false);
 
   // If user is already authenticated, redirect to dashboard
@@ -33,7 +34,7 @@ const Login: React.FC = () => {
     setLoading(true);
 
     try {
-      await login(email, password);
+      await login(email, password, remember);
       toast("Successfully logged in", "success");
       navigate({ to: "/overview" });
     } catch (error: any) {
@@ -126,6 +127,8 @@ const Login: React.FC = () => {
               <Checkbox
                 label="Remember for 30 days"
                 className="text-sm text-slate-600"
+                checked={remember}
+                onChange={(e) => setRemember(e.target.checked)}
               />
             </div>
 
@@ -149,7 +152,7 @@ const Login: React.FC = () => {
           </form>
 
           <p className="text-center text-xs text-slate-400 mt-8">
-            SchoolConnect AI &copy; {new Date().getFullYear()}
+            EduSync &copy; {new Date().getFullYear()}
           </p>
         </div>
       </div>

@@ -6,7 +6,7 @@ export interface AuthContextType {
   isAuthenticated: boolean;
   isLoading: boolean;
   schoolId: string | null;
-  login: (email: string, password: string) => Promise<void>;
+  login: (email: string, password: string, remember?: boolean) => Promise<void>;
   signup: (email: string, password: string) => Promise<User | null>;
   loginAnonymously: () => Promise<void>;
   logout: () => Promise<void>;

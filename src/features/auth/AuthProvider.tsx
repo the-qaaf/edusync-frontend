@@ -4,6 +4,9 @@ import {
   signInWithEmailAndPassword,
   signOut,
   onAuthStateChanged,
+  setPersistence,
+  browserLocalPersistence,
+  browserSessionPersistence,
 } from "firebase/auth";
 import {
   auth,
@@ -82,7 +85,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     return () => unsubscribe();
   }, []);
 
-  const login = async (email: string, password: string) => {
+  const login = async (
+    email: string,
+    password: string,
+    remember: boolean = false
+  ) => {
     if (!isFirebaseConfigured() || !auth) {
       // Fallback mock login for demo when no config exists
       if (email.includes("@")) {
@@ -117,6 +124,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     }
     try {
       setIsLoading(true);
+      await setPersistence(
+        auth,
+        remember ? browserLocalPersistence : browserSessionPersistence
+      );
       await signInWithEmailAndPassword(auth, email, password);
     } catch (error) {
       setIsLoading(false);
