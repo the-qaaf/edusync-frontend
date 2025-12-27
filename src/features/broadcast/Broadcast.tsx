@@ -261,9 +261,7 @@ const Broadcast: React.FC = () => {
                         },
                         {
                           type: "text",
-                          text: `${message}\n\n${
-                            settings?.schoolName || "School Administration"
-                          }`,
+                          text: message,
                         },
                       ],
                     },
