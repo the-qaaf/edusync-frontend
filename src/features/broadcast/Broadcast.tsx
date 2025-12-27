@@ -247,7 +247,7 @@ const Broadcast: React.FC = () => {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
-                  to: waRecipients, // Full contact objects including phone
+                  to: waRecipients.map((r) => ({ phone: r.phone })), // Sanitize to avoid field collisions
                   templateName: "updates_template_v1",
                   language: "en_US",
                   text: message, // fallback for internal logs if needed
@@ -261,7 +261,9 @@ const Broadcast: React.FC = () => {
                         },
                         {
                           type: "text",
-                          text: `${message}`,
+                          text: `${message}\n\n${
+                            settings?.schoolName || "School Administration"
+                          }`,
                         },
                       ],
                     },
