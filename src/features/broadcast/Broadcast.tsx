@@ -251,7 +251,7 @@ const Broadcast: React.FC = () => {
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
                   to: waRecipients, // Full contact objects including phone
-                  templateName: "school_updates_v2",
+                  templateName: "updates_template_v1",
                   language: "en_US",
                   text: message, // fallback for internal logs if needed
                   components: [
