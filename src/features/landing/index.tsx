@@ -296,7 +296,13 @@ export const LandingPage = () => {
             </span>
             <p className="text-slate-500 mt-4 leading-relaxed">
               Making education accessible, intelligent, and engaging for
-              everyone. Proudly built by The Qaaf Development.
+              everyone.
+            </p>
+            <p className="text-slate-500 mt-2 leading-relaxed">
+              EduSync is a product of{" "}
+              <span className="font-bold text-sky-700 bg-sky-50 px-2 py-0.5 rounded-md border border-sky-100">
+                The Qaaf Development
+              </span>
             </p>
             <span className="text-sm text-slate-400 mt-6">
               © {new Date().getFullYear()} The Qaaf Development
